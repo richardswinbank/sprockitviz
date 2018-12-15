@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GraphSource\AbstractGraphSource.cs" />
+    <Compile Include="GraphSource\Sprockit\CompactCombinedGraphSource.cs" />
+    <Compile Include="GraphSource\Sprockit\ISprockitSettings.cs" />
+    <Compile Include="GraphSource\Sprockit\SprockitGraphSource.cs" />
     <Compile Include="PipelineGraph\Edge.cs" />
     <Compile Include="PipelineGraph\Graph.cs" />
     <Compile Include="PipelineGraph\Node.cs" />
