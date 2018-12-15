@@ -14,7 +14,7 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
    * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/sprockit
    *
-   * Implementation of AbstractGraphSource for Sprockit ETL pipelines
+   * Implementation of AbstractGraphSource for Sprockit ETL pipelines.
    */
   public abstract class SprockitGraphSource : AbstractGraphSource
   {

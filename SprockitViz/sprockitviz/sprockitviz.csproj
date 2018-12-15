@@ -53,6 +53,9 @@
     <Compile Include="SprockitViz.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visualiser\AbstractVisualiser.cs" />
+    <Compile Include="Visualiser\Graphviz\BasicVisualiser.cs" />
+    <Compile Include="Visualiser\Graphviz\GraphvizVisualiser.cs" />
+    <Compile Include="Visualiser\Graphviz\IGraphvizSettings.cs" />
     <Compile Include="Visualiser\VisualiserConfigurationException.cs" />
     <Compile Include="Visualiser\VisualiserRenderingException.cs" />
   </ItemGroup>
