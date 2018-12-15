@@ -96,7 +96,6 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       switch (n.Type)
       {
         case NodeType.StoredProcedure:
-          return 2;
         case NodeType.SsisPackage:
           return 2;
         default:
