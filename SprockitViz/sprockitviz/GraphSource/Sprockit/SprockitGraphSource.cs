@@ -1,18 +1,14 @@
 ﻿using FireFive.PipelineVisualiser.PipelineGraph;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
 {
   /*
    * SprockitGraphSource class
    * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
-   * http://richardswinbank.net/sprockit
+   * http://richardswinbank.net/sprockitviz
    *
    * Implementation of AbstractGraphSource for Sprockit ETL pipelines.
    */

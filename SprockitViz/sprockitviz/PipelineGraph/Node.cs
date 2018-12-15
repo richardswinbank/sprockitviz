@@ -31,9 +31,9 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
     }
 
     // return true if parameter "edges" contains edges that form a path from this node to parameter "end"
-    internal bool LeadsTo(Node end, List<Edge> edges)
+    internal bool LeadsTo(Node end, List<DirectedEdge> edges)
     {
-      foreach (Edge e in edges)
+      foreach (DirectedEdge e in edges)
         if (e.Start == this && (e.End == end || e.End.LeadsTo(end, edges)))
           return true;
       return false;
@@ -41,9 +41,9 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
 
     // return true if parameter "nodes" contains a node 'parent' 
     // and parameter "edges" contains an edge 'parent' -> this.
-    internal bool HasParent(List<Node> nodes, List<Edge> edges)
+    internal bool HasParent(List<Node> nodes, List<DirectedEdge> edges)
     {
-      foreach (Edge e in edges)
+      foreach (DirectedEdge e in edges)
         if (e.End == this && nodes.Contains(e.Start))
           return true;
       return false;

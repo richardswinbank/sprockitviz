@@ -119,7 +119,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
     private int GetMaxLeafStagger(Graph g)
     {
       Size size = g.GetSize();
-      float overSize = (float)size.Width / settings.MaxWidth;
+      float overSize = (float)size.Width / settings.MaxSize.Width;
 
       if (overSize <= 1)  // not too wide
         return 0;
@@ -127,20 +127,20 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       int maxLeafStagger = 0;
       string trace = size.ToString() + "; match ";
 
-      if (overSize * size.Height > settings.MaxHeight)
+      if (overSize * size.Height > settings.MaxSize.Height)
       // compressing to MaxWidth wouldn't fit on the page -- try to match aspect ratio
       {
         float density = (float)g.Nodes.Count / (size.Width * size.Height);
         density = 1;
-        float targetCount = settings.MaxWidth * settings.MaxHeight * density;
-        float targetWidth = g.Nodes.Count / targetCount * settings.MaxWidth;
+        float targetCount = settings.MaxSize.Width * settings.MaxSize.Height * density;
+        float targetWidth = g.Nodes.Count / targetCount * settings.MaxSize.Width;
 
         maxLeafStagger = (int)((g.Nodes.Count + 1) / targetWidth);
         trace += "aspect ratio";
       }
       else // try to compress to MaxWidth
       {
-        maxLeafStagger = (g.Nodes.Count + 1) / settings.MaxWidth;
+        maxLeafStagger = (g.Nodes.Count + 1) / settings.MaxSize.Width;
         trace += "max width";
       }
 

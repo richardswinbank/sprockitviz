@@ -36,16 +36,16 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
           + (g.IsCentre(n) ? "\",fillcolor=\"gold" : "")
           + "\",penwidth=\"" + GetPenWidth(n) + "\"];");
 
-      foreach (Edge e in g.Edges)
+      foreach (DirectedEdge e in g.Edges)
         sb.AppendLine("  " + e.Start.Id + " -> " + e.End.Id + " [style=\"" + GetEdgeStyle(e) + "\"];");
 
       sb.AppendLine("}");
       return sb.ToString();
     }
 
-    private string GetEdgeStyle(Edge e)
+    private string GetEdgeStyle(DirectedEdge e)
     {
-      if (e is IndirectEdge)
+      if (e is DirectedPath)
         return "dashed";
       return "solid";
     }

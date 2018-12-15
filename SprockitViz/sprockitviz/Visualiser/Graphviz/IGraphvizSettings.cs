@@ -19,9 +19,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 
     string OutputFolder { get; }
 
-    int MaxWidth { get; }
-
-    int MaxHeight { get; }
+    Size MaxSize { get; }
 
     Dictionary<string, string> DbColors { get; }
     bool Verbose { get; }

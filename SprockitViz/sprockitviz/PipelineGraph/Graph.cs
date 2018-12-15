@@ -21,12 +21,12 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
     private Node centre;
 
     public List<Node> Nodes { get; private set; }
-    public List<Edge> Edges { get; private set; }
+    public List<DirectedEdge> Edges { get; private set; }
 
     public Graph()
     {
       Nodes = new List<Node>();
-      Edges = new List<Edge>();
+      Edges = new List<DirectedEdge>();
     }
 
     public Graph(Node centre) : this()
@@ -86,19 +86,19 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       subgraph.AddAncestors(centre, radius, this);
       subgraph.AddDescendants(centre, radius, this);
 
-      foreach (Edge e in Edges)
+      foreach (DirectedEdge e in Edges)
         if (subgraph.Contains(e.Start) && subgraph.Contains(e.End))
           subgraph.Edges.Add(e);
 
       foreach(Node start in subgraph.Nodes)
         foreach(Node end in subgraph.Nodes)
           if(start.LeadsTo(end, Edges) && ! start.LeadsTo(end, subgraph.Edges))
-            subgraph.Edges.Add(new IndirectEdge(start, end));
+            subgraph.Edges.Add(new DirectedPath(start, end));
 
       for(int i=subgraph.Edges.Count - 1; i>=0; i--)
-        if(subgraph.Edges[i] is IndirectEdge)
+        if(subgraph.Edges[i] is DirectedPath)
         {
-          IndirectEdge ie = (IndirectEdge)subgraph.Edges[i];
+          DirectedPath ie = (DirectedPath)subgraph.Edges[i];
           subgraph.Edges.Remove(ie);
           if (!ie.Start.LeadsTo(ie.End, subgraph.Edges))
             subgraph.Edges.Add(ie);
@@ -111,7 +111,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
     {
       if (radius <= 0)
         return;
-      foreach (Edge e in context.Edges)
+      foreach (DirectedEdge e in context.Edges)
       {
         if (e.End == child && !Contains(e.Start))
         {
@@ -125,7 +125,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
     {
       if (radius <= 0)
         return;
-      foreach (Edge e in context.Edges)
+      foreach (DirectedEdge e in context.Edges)
       {
         if (e.Start == parent && !Contains(e.End))
         {
@@ -163,7 +163,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
         if (n.Id == endId)
           end = n;
 
-      Edges.Add(new Edge(start, end));
+      Edges.Add(new DirectedEdge(start, end));
     }
 
     public override string ToString()
@@ -172,7 +172,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
 
       foreach (Node n in Nodes)
         sb.AppendLine(n.ToString());
-      foreach (Edge n in Edges)
+      foreach (DirectedEdge n in Edges)
         sb.AppendLine(n.ToString());
 
       return sb.ToString();

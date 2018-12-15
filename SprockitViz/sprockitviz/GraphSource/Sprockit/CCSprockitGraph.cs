@@ -1,16 +1,16 @@
 ﻿namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
 {
-  class CompactCombinedGraphSource : SprockitGraphSource
+  class CCSprockitGraph : SprockitGraphSource
   {
     /*
-     * CompactCombinedGraphSource class
+     * CCSprockitGraph class
      * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
-     * http://richardswinbank.net/sprockit
+     * http://richardswinbank.net/sprockitviz
      *
      * Implementation of SprockitGraphSource providing a graph combining ETL
      * processes and resources, eliminating stored-query process nodes.
      */
-    public CompactCombinedGraphSource(ISprockitSettings settings) : base(settings)
+    public CCSprockitGraph(ISprockitSettings settings) : base(settings)
     {
     }
 

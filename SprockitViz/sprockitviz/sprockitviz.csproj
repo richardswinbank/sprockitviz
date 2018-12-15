@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -41,10 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GraphSource\AbstractGraphSource.cs" />
-    <Compile Include="GraphSource\Sprockit\CompactCombinedGraphSource.cs" />
+    <Compile Include="GraphSource\Sprockit\CCSprockitGraph.cs" />
     <Compile Include="GraphSource\Sprockit\ISprockitSettings.cs" />
     <Compile Include="GraphSource\Sprockit\SprockitGraphSource.cs" />
-    <Compile Include="PipelineGraph\Edge.cs" />
+    <Compile Include="PipelineGraph\DirectedEdge.cs" />
     <Compile Include="PipelineGraph\Graph.cs" />
     <Compile Include="PipelineGraph\Node.cs" />
     <Compile Include="PipelineGraph\NodeType.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="PipelineGraph\Size.cs" />
     <Compile Include="SprockitViz.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SprockitVizSettings.cs" />
     <Compile Include="Visualiser\AbstractVisualiser.cs" />
     <Compile Include="Visualiser\Graphviz\BasicVisualiser.cs" />
     <Compile Include="Visualiser\Graphviz\GraphvizVisualiser.cs" />
@@ -59,6 +61,8 @@
     <Compile Include="Visualiser\VisualiserConfigurationException.cs" />
     <Compile Include="Visualiser\VisualiserRenderingException.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
