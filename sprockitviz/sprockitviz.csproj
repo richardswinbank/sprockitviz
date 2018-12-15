@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{29CCB595-3A63-41FF-8550-9584289CC9B1}</ProjectGuid>
+    <ProjectGuid>{8AE56690-47E2-4D29-A23B-436E2F7F500D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>sprockitviz</RootNamespace>
     <AssemblyName>sprockitviz</AssemblyName>
