@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sprockitviz", "sprockitviz\sprockitviz.csproj", "{D1C0251D-CEE4-4D0D-A102-AE419D2F3DCE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1C0251D-CEE4-4D0D-A102-AE419D2F3DCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1C0251D-CEE4-4D0D-A102-AE419D2F3DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1C0251D-CEE4-4D0D-A102-AE419D2F3DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1C0251D-CEE4-4D0D-A102-AE419D2F3DCE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98A6EBFD-DAB1-46BE-A65B-FA777B3FCAAD}
+	EndGlobalSection
+EndGlobal
