@@ -40,11 +40,14 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       return n == centre;
     }
 
-    public string GetName()
+    public string Name
     {
-      if (centre == null)
-        return "Pipeline";
-      return centre.LongName;
+      get
+      {
+        if (centre == null)
+          return "Pipeline";
+        return centre.LongName;
+      }
     }
 
     public Size GetSize()

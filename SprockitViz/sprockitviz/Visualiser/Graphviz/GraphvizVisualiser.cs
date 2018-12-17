@@ -34,9 +34,9 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       if (!Directory.Exists(outputFolder))
         Directory.CreateDirectory(outputFolder);
 
-      string ufFile = outputFolder + "\\" + g.GetName() + ".uf";
-      string dotFile = outputFolder + "\\" + g.GetName() + ".gv";
-      string svgFile = outputFolder + "\\" + g.GetName() + ".svg";
+      string ufFile = outputFolder + "\\" + g.Name + ".uf";
+      string dotFile = outputFolder + "\\" + g.Name + ".gv";
+      string svgFile = outputFolder + "\\" + g.Name + ".svg";
 
       // get Graphviz input
       string gvInputScript = GetDotScript(g);

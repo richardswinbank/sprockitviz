@@ -24,7 +24,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
     public override string GetDotScript(Graph g)
     {
       StringBuilder sb = new StringBuilder();
-      sb.AppendLine("digraph G {");
+      sb.AppendLine("digraph \"" + g.Name + "\" {");
       sb.AppendLine("  node[shape=\"box\",fontname=\"helvetica\"];");
 
       foreach (Node n in g.Nodes)
