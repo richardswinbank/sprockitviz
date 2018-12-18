@@ -1,9 +1,6 @@
 ﻿using FireFive.PipelineVisualiser.PipelineGraph;
 using FireFive.PipelineVisualiser.Visualiser;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace FireFive.PipelineVisualiser.SprockitViz
@@ -78,6 +75,8 @@ namespace FireFive.PipelineVisualiser.SprockitViz
 
           if (settings.SubgraphRadius == 0)  // find "best fit" radius heuristically
           {
+            // build subgraphs with successively large radii until either 
+            // the result is too big or it contains the entire graph
             while (true)
             {
               radius++;
