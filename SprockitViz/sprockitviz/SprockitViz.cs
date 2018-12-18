@@ -73,10 +73,10 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         try
         {
           // find the subgraph
-          int radius = settings.SubgraphRadius;
+          int radius = settings.SubgraphRadius > 0 ? settings.SubgraphRadius : 1;
           var subgraph = graph.Subgraph(n, radius);
 
-          if (radius == 0)  // find "best fit" radius heuristically
+          if (settings.SubgraphRadius == 0)  // find "best fit" radius heuristically
           {
             while (true)
             {
