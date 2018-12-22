@@ -12,6 +12,7 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
    */
   public interface ISprockitSettings
   {
+    // connection string for Sprockit database
     string ConnectionString { get; }
   } 
 }

@@ -130,17 +130,17 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       if (overSize * size.Height > settings.MaxSize.Height)
       // compressing to MaxWidth wouldn't fit on the page -- try to match aspect ratio
       {
-        float density = (float)g.Nodes.Count / (size.Width * size.Height);
+        float density = (float)g.NodeCount / (size.Width * size.Height);
         density = 1;
         float targetCount = settings.MaxSize.Width * settings.MaxSize.Height * density;
-        float targetWidth = g.Nodes.Count / targetCount * settings.MaxSize.Width;
+        float targetWidth = g.NodeCount / targetCount * settings.MaxSize.Width;
 
-        maxLeafStagger = (int)((g.Nodes.Count + 1) / targetWidth);
+        maxLeafStagger = (int)((g.NodeCount + 1) / targetWidth);
         trace += "aspect ratio";
       }
       else // try to compress to MaxWidth
       {
-        maxLeafStagger = (g.Nodes.Count + 1) / settings.MaxSize.Width;
+        maxLeafStagger = (g.NodeCount + 1) / settings.MaxSize.Width;
         trace += "max width";
       }
 
@@ -186,17 +186,17 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       return "ProcessId = " + id.Substring(1, id.Length - 1);
     }
 
-    protected string GetTypeDescription(NodeType type)
+    protected string GetTypeDescription(DbObjectType type)
     {
       switch (type)
       {
-        case NodeType.StoredProcedure:
+        case DbObjectType.StoredProcedure:
           return "Stored procedure";
-        case NodeType.SsisPackage:
+        case DbObjectType.SsisPackage:
           return "SSIS package";
-        case NodeType.ScalarFunction:
+        case DbObjectType.ScalarFunction:
           return "Scalar function";
-        case NodeType.TableValuedFunction:
+        case DbObjectType.TableValuedFunction:
           return "Table-valued function";
         default:
           return type.ToString();

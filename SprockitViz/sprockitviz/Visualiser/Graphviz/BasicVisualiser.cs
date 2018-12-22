@@ -48,7 +48,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 
     private string GetFontColour(Node n)
     {
-      if (n.Type == NodeType.SsisPackage)
+      if (n.Type == DbObjectType.SsisPackage)
         return "red";
       return GetDbColor(n);
     }
@@ -58,8 +58,8 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       string suffix = "";
       switch (n.Type)
       {
-        case NodeType.ScalarFunction:
-        case NodeType.TableValuedFunction:
+        case DbObjectType.ScalarFunction:
+        case DbObjectType.TableValuedFunction:
           suffix = "()";
           break;
       }
@@ -72,11 +72,11 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 
       switch (n.Type)
       {
-        case NodeType.View:
-        case NodeType.ScalarFunction:
+        case DbObjectType.View:
+        case DbObjectType.ScalarFunction:
           style = "dashed";
           break;
-        case NodeType.Unknown:
+        case DbObjectType.Unknown:
           style = "dotted";
           break;
       }
@@ -91,8 +91,8 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
     {
       switch (n.Type)
       {
-        case NodeType.StoredProcedure:
-        case NodeType.SsisPackage:
+        case DbObjectType.StoredProcedure:
+        case DbObjectType.SsisPackage:
           return 2;
         default:
           return 1;

@@ -11,6 +11,7 @@ namespace FireFive.PipelineVisualiser.Visualiser
    */
   public abstract class AbstractVisualiser
   {
+    // visualise a graph
     public abstract void Visualise(Graph g);
 
   }

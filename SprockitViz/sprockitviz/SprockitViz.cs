@@ -66,7 +66,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       foreach (Node n in graph.Nodes)
       {
         i++;
-        Console.WriteLine("Drawing subgraph " + i + " of " + graph.Nodes.Count + " (" + n.LongName + ")");
+        Console.WriteLine("Drawing subgraph " + i + " of " + graph.NodeCount + " (" + n.LongName + ")");
         try
         {
           // find the subgraph
@@ -83,7 +83,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
               var biggerSubgraph = graph.Subgraph(n, radius);
               var size = biggerSubgraph.GetSize();
               if (size.Width > settings.MaxSize.Width || size.Height > settings.MaxSize.Height
-                || biggerSubgraph.Nodes.Count <= subgraph.Nodes.Count)
+                || biggerSubgraph.NodeCount <= subgraph.NodeCount)
                 break;
               subgraph = biggerSubgraph;
             }

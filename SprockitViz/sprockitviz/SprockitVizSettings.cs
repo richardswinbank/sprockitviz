@@ -40,7 +40,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
     {
       context = null;
       foreach (SprockitInstance i in SprockitInstances)
-        if (i.InstanceAlias == instanceAlias)
+        if (i.Alias == instanceAlias)
           context = i;
       if (context == null)
         throw new VisualiserConfigurationException("Instance alias '" + instanceAlias + "' not defined.");
@@ -76,6 +76,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // folder into which to write output files
     public string OutputFolder
     {
       get
@@ -84,6 +85,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // expected available display size (in graph nodes)
     public Size MaxSize
     {
       get
@@ -96,6 +98,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // radius to use when calculating subgraphs
     public int SubgraphRadius
     {
       get
@@ -104,7 +107,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
-
+    // collection of text colours for specified database names
     public Dictionary<string, string> DbColors
     {
       get
@@ -116,6 +119,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // connection string for Sprockit database
     public string ConnectionString
     {
       get
@@ -124,6 +128,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // location of Graphviz binaries
     [ConfigurationProperty("graphvizAppFolder", IsRequired = true)]
     public string GraphvizAppFolder
     {
@@ -133,6 +138,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // write extra stuff to the console during processing?
     [ConfigurationProperty("verbose", DefaultValue = false, IsRequired = false)]
     public bool Verbose
     {
@@ -142,6 +148,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // delete Graphviz input files when finished?
     [ConfigurationProperty("deleteWorkingFiles", DefaultValue = true, IsRequired = false)]
     public bool DeleteWorkingFiles
     {
@@ -151,6 +158,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // collection of configured Sprockit instances, each identified by a unique alias
     [ConfigurationProperty("SprockitInstances", IsRequired = true)]
     private SprockitInstanceCollection SprockitInstances
     {
@@ -160,6 +168,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // class to represent collection of configured Sprockit instances, each identified by a unique alias
     [ConfigurationCollection(typeof(SprockitInstance), AddItemName = "Instance"
     , CollectionType = ConfigurationElementCollectionType.BasicMap)]
     private class SprockitInstanceCollection : ConfigurationElementCollection
@@ -171,14 +180,17 @@ namespace FireFive.PipelineVisualiser.SprockitViz
 
       protected override Object GetElementKey(ConfigurationElement element)
       {
-        return ((SprockitInstance)element).InstanceAlias;
+        return ((SprockitInstance)element).Alias;
       }
 
     }
+
+    // class to represent a configured Sprockit instance, identified by a unique alias
     private class SprockitInstance : ConfigurationElement
     {
+      // instance's uniquely-identifying alias
       [ConfigurationProperty("alias", IsRequired = true, IsKey = true)]
-      public string InstanceAlias
+      public string Alias
       {
         get
         {
@@ -186,6 +198,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // connection string for instance database
       [ConfigurationProperty("connectionString", IsRequired = true)]
       public string ConnectionString
       {
@@ -195,6 +208,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // folder into which to write output files
       [ConfigurationProperty("outputFolder", IsRequired = true)]
       public string OutputFolder
       {
@@ -204,6 +218,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // which AbstractVisualiser to use
       [ConfigurationProperty("displayMode", DefaultValue = "basic", IsRequired = false)]
       public string DisplayMode
       {
@@ -213,6 +228,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // which SprockitGraphSource to use
       [ConfigurationProperty("graphType", DefaultValue = "compact", IsRequired = false)]
       public string GraphType
       {
@@ -222,7 +238,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
-
+      // expected available width of display (in graph nodes)
       [ConfigurationProperty("maxWidth", IsRequired = true)]
       public int MaxWidth
       {
@@ -232,6 +248,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // expected available height of display (in graph nodes)
       [ConfigurationProperty("maxHeight", IsRequired = true)]
       public int MaxHeight
       {
@@ -241,6 +258,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // radius to use when calculating subgraphs
       [ConfigurationProperty("subgraphRadius", DefaultValue = 0, IsRequired = false)]
       public int SubgraphRadius
       {
@@ -250,6 +268,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // collection of text colours for specified database names
       [ConfigurationProperty("dbColors", IsRequired = false)]
       public DbColorCollection DbColors
       {
@@ -260,6 +279,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // class to represent collection of text colours for specified database names
     [ConfigurationCollection(typeof(DbColor), AddItemName = "dbColor", CollectionType = ConfigurationElementCollectionType.BasicMap)]
     private class DbColorCollection : ConfigurationElementCollection
     {
@@ -274,9 +294,10 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    // class to represent text colours for specified database name
     private class DbColor : ConfigurationElement
     {
-
+      // database name
       [ConfigurationProperty("dbName", IsRequired = true, IsKey = true)]
       public string DbName
       {
@@ -286,6 +307,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         }
       }
 
+      // text color
       [ConfigurationProperty("color", IsRequired = true)]
       public string Color
       {

@@ -19,27 +19,44 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
   public class Graph
   {
     private Node centre;
+    private Dictionary<string, Node> nodes;  // implemented as dictionary to ensure ID uniqueness
 
-    public List<Node> Nodes { get; private set; }
+    // collection of edges
+    public IEnumerable<Node> Nodes { get { return nodes.Values;  } }  
+
+    // collection of nodes
     public List<DirectedEdge> Edges { get; private set; }
 
+    // instantiate a graph
     public Graph()
     {
-      Nodes = new List<Node>();
+      nodes = new Dictionary<string, Node>();
       Edges = new List<DirectedEdge>();
     }
 
+    // instantiate a graph with a nominated centre node
     public Graph(Node centre) : this()
     {
       AddNode(centre);
       this.centre = centre;
     }
 
+    // return true if n is the centre of this graph
     public bool IsCentre(Node n)
     {
       return n == centre;
     }
 
+    // the number of nodes in the graph
+    public int NodeCount
+    {
+      get
+      {
+        return nodes.Count;
+      }
+    }
+
+    // the name of the graph
     public string Name
     {
       get
@@ -50,54 +67,74 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       }
     }
 
+    // The size of this (directed, acyclic) graph. Calculated by decomposing the graph into "ranks":
+    //  - first rank is the set of nodes in the graph with no parents (so the graph *must* be acyclic!)
+    //  - next rank is their immediate children 
+    //  - and so on
+    // Width is the size of the widest rank, height is the number of ranks.
     public Size GetSize()
     {
-      List<Node> nodes = new List<Node>();
+      List<Node> graph = new List<Node>();
       foreach (Node n in Nodes)
-        nodes.Add(n);
+        graph.Add(n);
       Size size = Size.Empty;
-      GetSize(nodes, size);
+      GetSize(graph, size);
       return size;
     }
 
-    private void GetSize(List<Node> nodes, Size size)
+    // internal implementation of GetSize. Approach is to:
+    //  - identify the the set of nodes in the incoming subgraph with no parent (its roots -- a DAG can have > 1)
+    //  - remove the root nodes (top rank)
+    //  - recurse into the reduced subgraph
+    private void GetSize(List<Node> subgraph, Size size)
     {
-      if (nodes.Count == 0)
+      if (subgraph.Count == 0)  // if the graph isn't a DAG, this termination condition will never be met!
         return;
 
-      List<Node> roots = Roots(nodes);
+      List<Node> roots = Roots(subgraph);
       size.Width = roots.Count > size.Width ? roots.Count : size.Width;
       size.Height += 1;
 
       foreach (Node root in roots)
-        nodes.Remove(root);
-      GetSize(nodes, size);
+        subgraph.Remove(root);
+      GetSize(subgraph, size);
     }
-    
-    private List<Node> Roots(List<Node> nodes)
+
+    // return the roots of a graph
+    private List<Node> Roots(List<Node> graph)
     {
       List<Node> roots = new List<Node>();
-      foreach (Node n in nodes)
-        if (!n.HasParent(nodes, Edges))
+      foreach (Node n in graph)
+        if (!n.HasParent(graph, Edges))
           roots.Add(n);
       return roots;
     }
 
+    // return the subgraph of specified radius around a given node
     internal Graph Subgraph(Node centre, int radius)
     {
+      // find the nodes in the subgraph -- this is the set of ancestors and descendants within 
+      // the radius distance(ancestors and descendants exist because the graph is directed)
       var subgraph = new Graph(centre);
       subgraph.AddAncestors(centre, radius, this);
       subgraph.AddDescendants(centre, radius, this);
 
+      // if an edge exists between any pair of nodes in the subgraph, add it to the subgraph
       foreach (DirectedEdge e in Edges)
         if (subgraph.Contains(e.Start) && subgraph.Contains(e.End))
           subgraph.Edges.Add(e);
 
-      foreach(Node start in subgraph.Nodes)
+      // add edges to represent indirect relationships where 
+      //  - node B is a descendent of node A in the full graph
+      //  - A & B are both present in the subgraph
+      //  - but not all nodes on the path from A to B are present in the subgraph.
+      foreach (Node start in subgraph.Nodes)
         foreach(Node end in subgraph.Nodes)
           if(start.LeadsTo(end, Edges) && ! start.LeadsTo(end, subgraph.Edges))
             subgraph.Edges.Add(new DirectedPath(start, end));
 
+      // the approach to adding indirect edges might add redundant edges 
+      // depending on the order in which it finds them -- remove them here
       for(int i=subgraph.Edges.Count - 1; i>=0; i--)
         if(subgraph.Edges[i] is DirectedPath)
         {
@@ -110,6 +147,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       return subgraph;
     }
 
+    // add a node's ancestors to a given graph
     private void AddAncestors(Node child, int radius, Graph context)
     {
       if (radius <= 0)
@@ -124,6 +162,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       }
     }
 
+    // add a node's descendents to a given graph
     private void AddDescendants(Node parent, int radius, Graph context)
     {
       if (radius <= 0)
@@ -138,34 +177,41 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       }
     }
 
-    private bool Contains(Node newNode)
+    // return true if this graph contains a specified node
+    private bool Contains(Node node)
     {
       foreach (Node n in Nodes)
-        if (n == newNode)
+        if (n == node)
           return true;
       return false;
     }
 
+    // add a node to the graph, ensuring that it is unqiuely identified by its Id
     internal void AddNode(Node node)
     {
-      foreach (Node n in Nodes)
-        if (n.Id == node.Id)
-          throw new Exception("Node Id " + n.Id + " is already present");
-      Nodes.Add(node);
+      foreach (string id in nodes.Keys)
+        if (id == node.Id)
+          throw new Exception("Node Id " + id + " is already present");
+      nodes.Add(node.Id, node);
     }
 
+    // add an edge to the graph between two nodes spcified by their Id values.
+    // Id validity isn't checked here but is enforced in the DirectedEdge constructor (which requires non-null arguments).
     internal void AddEdge(string startId, string endId)
     {
+      // find the start node from its Id
       Node start = null;
       foreach (Node n in Nodes)
         if (n.Id == startId)
           start = n;
 
+      // find the end node from its Id
       Node end = null;
       foreach (Node n in Nodes)
         if (n.Id == endId)
           end = n;
 
+      // add an edge from start -> end
       Edges.Add(new DirectedEdge(start, end));
     }
 

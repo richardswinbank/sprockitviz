@@ -14,6 +14,11 @@
     {
     }
 
+    // Return SQL query to retrieve list of nodes for the ETL pipeline graph.
+    // For this implementation that means:
+    //  - unique list of configured resources 
+    //  - configured processes *except* stored queries used to enforce stored query 
+    //    input dependendencies (these appear in the list of conigured resources)
     public override string GetNodeQuery()
     {
       return @"
@@ -51,6 +56,12 @@ FROM sprockit.uvw_Resource
 ";
     }
 
+    // Return SQL query to retrieve list of edges for the ETL pipeline graph.
+    // For this implementation that means:
+    //   - the list of edges from resources to processes (process inputs)
+    //   - the list of edges from processed to resources (process outputs), unless the 
+    //     process is a stored query used to enforce stored query input dependendencies.  
+    //     These are replaced by a direct edge from the input resource to the output.
     public override string GetEdgeQuery()
     {
       return @"

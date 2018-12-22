@@ -14,8 +14,10 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
    */
   public abstract class SprockitGraphSource : AbstractGraphSource
   {
+    // configuration for this graph source
     private ISprockitSettings settings;
 
+    // create a new instance with the specified configuration
     public SprockitGraphSource(ISprockitSettings settings)
     {
       this.settings = settings;
@@ -23,7 +25,10 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
 
     public override Graph GetGraph()
     {
+      // instantiate an empty graph
       Graph graph = new Graph();
+
+      // use the SQL query returned from GetNodeQuery() to construct the graph's nodes
       using (SqlConnection conn = new SqlConnection(settings.ConnectionString))
       {
         SqlCommand cmd = new SqlCommand(GetNodeQuery(), conn);
@@ -31,8 +36,6 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
         using (SqlDataReader rdr = cmd.ExecuteReader())
         {
           var schema = rdr.GetSchemaTable().Rows;
-          //foreach (DataRow col in schema)
-          //  Console.WriteLine(col["ColumnName"]);
 
           while (rdr.Read())
           {
@@ -68,6 +71,7 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
         }
       }
 
+      // use the SQL query returned from GetEdgeQuery() to construct the graph's edges
       using (SqlConnection conn = new SqlConnection(settings.ConnectionString))
       {
         SqlCommand cmd = new SqlCommand(GetEdgeQuery(), conn);
@@ -77,32 +81,36 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
             graph.AddEdge((string)rdr["StartNodeId"], (string)rdr["EndNodeId"]);
       }
 
+      // return the graph
       return graph;
     }
 
-    private NodeType GetNodeType(string objectType)
+    // translate SQL Server database object types to DbObjectType enum members
+    private DbObjectType GetNodeType(string objectType)
     {
       switch (objectType)
       {
         case "P":
-          return NodeType.StoredProcedure;
+          return DbObjectType.StoredProcedure;
         case "V":
-          return NodeType.View;
+          return DbObjectType.View;
         case "IF":
-          return NodeType.TableValuedFunction;
+          return DbObjectType.TableValuedFunction;
         case "FN":
-          return NodeType.ScalarFunction;
+          return DbObjectType.ScalarFunction;
         case "SSIS":
-          return NodeType.SsisPackage;
+          return DbObjectType.SsisPackage;
         case "U":
-          return NodeType.Table;
+          return DbObjectType.Table;
         default:
-          return NodeType.Unknown;
+          return DbObjectType.Unknown;
       }
     }
 
+    // Return SQL query to retrieve list of nodes for the ETL pipeline graph.
     public abstract string GetNodeQuery();
 
+    // Return SQL query to retrieve list of edges for the ETL pipeline graph.
     public abstract string GetEdgeQuery();
 
   }

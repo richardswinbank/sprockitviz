@@ -8,22 +8,47 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
    * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
-   * Class representing a node in an ETL pipeline graph.
+   * Class representing a node (some kind of database object) in an ETL pipeline graph.
    */
-  public class Node : PropertyBag<string>
+  public class Node 
   {
+    private Dictionary<string, string> properties;
+
     public Node (string id)
     {
       if (id == null || id.Length == 0)
         throw new Exception("Node ID must be non-null and non-zero in length");
       Id = id;
+      properties = new Dictionary<string, string>();
     }
 
+    // unique identifier for the object
     public string Id { get; private set; }
-    public string ShortName { get; set; }
-    public string LongName { get; set; }
-    public NodeType Type { get; set; }
+
+    // name of object's database 
     public string DbName { get; set; }
+
+    // database object type
+    public DbObjectType Type { get; set; }
+
+    public string ShortName { get; set; }
+
+    public string LongName { get; set; }
+
+    public void SetProperty(string propertyName, string propertyValue)
+    {
+      properties[propertyName] = propertyValue;
+    }
+
+    public bool HasProperty(string propertyName)
+    {
+      return properties.ContainsKey(propertyName);
+    }
+
+    public string GetProperty(string propertyName)
+    {
+      return properties[propertyName];
+    }
 
     public override string ToString()
     {

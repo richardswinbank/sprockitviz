@@ -48,8 +48,7 @@
     <Compile Include="PipelineGraph\DirectedEdge.cs" />
     <Compile Include="PipelineGraph\Graph.cs" />
     <Compile Include="PipelineGraph\Node.cs" />
-    <Compile Include="PipelineGraph\NodeType.cs" />
-    <Compile Include="PipelineGraph\PropertyBag.cs" />
+    <Compile Include="PipelineGraph\DbObjectType.cs" />
     <Compile Include="PipelineGraph\Size.cs" />
     <Compile Include="SprockitViz.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

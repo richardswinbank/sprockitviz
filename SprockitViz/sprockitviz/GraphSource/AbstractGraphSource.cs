@@ -11,6 +11,7 @@ namespace FireFive.PipelineVisualiser.GraphSource
    */
   public abstract class AbstractGraphSource
   {
+    // return a graph
     public abstract Graph GetGraph();
 
   }
