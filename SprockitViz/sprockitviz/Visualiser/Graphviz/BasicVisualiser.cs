@@ -13,32 +13,50 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
    */
   class BasicVisualiser : GraphvizVisualiser
   {
+    // create a new instance with a specified configuration
     public BasicVisualiser(IGraphvizSettings settings) : base(settings)
     {
     }
 
+    #region GraphvizVisualiser implementation
+
+    // return a DOT script for a specified graph
     public override string GetDotScript(Graph g)
     {
       StringBuilder sb = new StringBuilder();
-      sb.AppendLine("digraph \"" + g.Name + "\" {");
-      sb.AppendLine("  node[shape=\"box\",fontname=\"helvetica\"];");
 
+      // graph header
+      sb.AppendLine("digraph " + Enquote(g.Name) + " {");
+      sb.AppendLine("  node[shape=box,fontname=helvetica];");
+
+      // add nodes
       foreach (Node n in g.Nodes)
-        sb.AppendLine("  " + n.Id + " [label=\"" + GetLabel(n)
-          + "\",tooltip=\"" + GetTooltip(n)
-          + "\",style=\"" + GetNodeStyle(n, g) + ",rounded"
-          + "\",fontcolor=\"" + GetFontColour(n)
-          + "\",href=\"" + n.LongName + ".svg"
-          + (g.IsCentre(n) ? "\",fillcolor=\"gold" : "")
-          + "\",penwidth=\"" + GetPenWidth(n) + "\"];");
+        sb.AppendLine("  " + Enquote(n.Id)
+          + " [label=" + Enquote(GetLabel(n))
+          + ",tooltip=" + Enquote(GetTooltip(n))
+          + ",style=" + Enquote(GetNodeStyle(n, g) + ",rounded")
+          + ",fontcolor=" + Enquote(GetFontColor(n))
+          + ",href=" + Enquote(n.LongName + ".svg")
+          + (g.IsCentre(n) ? ",fillcolor=gold" : "")
+          + ",penwidth=" + GetPenWidth(n)
+          + "];");
 
+      // add edges
       foreach (DirectedEdge e in g.Edges)
-        sb.AppendLine("  " + e.Start.Id + " -> " + e.End.Id + " [style=\"" + GetEdgeStyle(e) + "\"];");
+        sb.AppendLine("  " + Enquote(e.Start.Id) + " -> " + Enquote(e.End.Id) 
+          + " [style=" + Enquote(GetEdgeStyle(e)) + "];");
 
+      // graph closing brace
       sb.AppendLine("}");
+
       return sb.ToString();
     }
 
+    #endregion GraphvizVisualiser implementation
+
+    #region Helper functions
+
+    // return Graphviz edge style for a specified edge
     private string GetEdgeStyle(DirectedEdge e)
     {
       if (e is DirectedPath)
@@ -46,13 +64,15 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       return "solid";
     }
 
-    private string GetFontColour(Node n)
+    // return Graphviz font color for a specified node
+    private string GetFontColor(Node n)
     {
       if (n.Type == DbObjectType.SsisPackage)
         return "red";
       return GetDbColor(n);
     }
 
+    // return display text for a specified node
     private string GetLabel(Node n)
     {
       string suffix = "";
@@ -66,6 +86,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       return n.ShortName + suffix;
     }
 
+    // return Graphviz style for a specified node (in the context of a specific graph)
     private string GetNodeStyle(Node n, Graph context)
     {
       string style = "solid";
@@ -87,6 +108,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       return style;
     }
 
+    // return Graphviz pen width for a specified node's outline
     private float GetPenWidth(Node n)
     {
       switch (n.Type)
@@ -99,11 +121,19 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       }
     }
 
+    // return tooltip text for a specified node
     private string GetTooltip(Node n)
     {
       var duration = GetDurationDescription(n);
       return n.LongName + "&#13;&#10;" + GetTypeDescription(n.Type) + " (" + (duration.Length > 0 ? duration + ", " : "") + GetIdDescription(n.Id) + ")";
     }
 
+    // surround a string with double quotes
+    private string Enquote(string s)
+    {
+      return "\"" + s + "\"";
+    }
+
+    #endregion Helper functions
   }
 }

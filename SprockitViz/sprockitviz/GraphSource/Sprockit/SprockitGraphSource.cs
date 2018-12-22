@@ -17,7 +17,7 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
     // configuration for this graph source
     private ISprockitSettings settings;
 
-    // create a new instance with the specified configuration
+    // create a new instance with a specified configuration
     public SprockitGraphSource(ISprockitSettings settings)
     {
       this.settings = settings;

@@ -16,8 +16,8 @@ namespace FireFive.PipelineVisualiser.SprockitViz
   {
     static void Main(string[] args)
     {
-      //if (args.Length == 0)
-      //  args = new string[] { "my_test_sprockit_instance" };  // just for testing in VS
+      if (args.Length == 0)
+        args = new string[] { "my_test_sprockit_instance" };  // just for testing in VS
 
       Console.WriteLine(@"
   ****************************************************************************

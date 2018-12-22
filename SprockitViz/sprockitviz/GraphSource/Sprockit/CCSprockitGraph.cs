@@ -10,6 +10,8 @@
      * Implementation of SprockitGraphSource providing a graph combining ETL
      * processes and resources, eliminating stored-query process nodes.
      */
+
+    // create a new instance with a specified configuration
     public CCSprockitGraph(ISprockitSettings settings) : base(settings)
     {
     }

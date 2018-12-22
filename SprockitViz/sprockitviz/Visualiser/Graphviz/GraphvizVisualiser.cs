@@ -15,103 +15,50 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
    */
   public abstract class GraphvizVisualiser : AbstractVisualiser
   {
+    // configuration for this visualiser
     private IGraphvizSettings settings;
 
+    // create a new instance with a specified configuration
     public GraphvizVisualiser(IGraphvizSettings settings)
     {
       this.settings = settings;
     }
 
-    private StringBuilder stdOut;
-    private StringBuilder stdErr;
-
+    // get a DOT script for a graph, then invoke Graphviz to produce an image in SVG format
     public override void Visualise(Graph g)
     {
-      string style = "svg";
-      string algorithm = "dot";
-
+      // make sure we have an output folder
       string outputFolder = settings.OutputFolder;
       if (!Directory.Exists(outputFolder))
         Directory.CreateDirectory(outputFolder);
 
+      // prepare working & output file names
       string ufFile = outputFolder + "\\" + g.Name + ".uf";
       string dotFile = outputFolder + "\\" + g.Name + ".gv";
       string svgFile = outputFolder + "\\" + g.Name + ".svg";
 
-      // get Graphviz input
-      string gvInputScript = GetDotScript(g);
-      File.WriteAllText(dotFile, gvInputScript);
-
-      // unflatten?
+      // needs unflatten?
       int maxLeafStagger = GetMaxLeafStagger(g);
-      if(maxLeafStagger > 0)
+      if (maxLeafStagger > 0)  // unflatten
       {
-        File.WriteAllText(ufFile, gvInputScript);
-
-        // call unflatten
-        Process uf = new Process();
-        uf.StartInfo.CreateNoWindow = true;
-        uf.StartInfo.UseShellExecute = false;
-        uf.StartInfo.FileName = settings.GraphvizAppFolder + @"\unflatten.exe";
-        if (!File.Exists(uf.StartInfo.FileName))
-          throw new VisualiserConfigurationException("Graphviz executable " + uf.StartInfo.FileName + " not found.");
-        uf.StartInfo.Arguments = "-fl" + maxLeafStagger  + " \"" + ufFile + "\"";
-
-        uf.StartInfo.RedirectStandardOutput = true;
-        stdOut = new StringBuilder();
-        uf.OutputDataReceived += StdOutDataReceived;
-
-        uf.StartInfo.RedirectStandardError = true;
-        stdErr = new StringBuilder();
-        uf.ErrorDataReceived += StdErrDataReceived;
-
-        uf.Start();
-        uf.BeginOutputReadLine();
-        uf.BeginErrorReadLine();
-        if (!uf.WaitForExit(5000))
-        {
-          uf.Kill();
-          uf.WaitForExit();
-        }
-        if (uf.ExitCode == 0)
-          File.WriteAllText(dotFile, stdOut.ToString());
+        // write the DOT script into a different file (we want to be able to keep inputs 
+        // for unflatten.exe *and* dot.exe when settings.DeleteWorkingFiles is false)
+        File.WriteAllText(ufFile, GetDotScript(g));
+        // call unflatten.exe, writing output script into dotFile
+        ExecuteGraphviz(GraphvizExecutable.Unflatten, ufFile, dotFile, "-fl" + maxLeafStagger);
+      }
+      else
+      {
+        // write input script directly into dotFile
+        File.WriteAllText(dotFile, GetDotScript(g));
       }
 
-      // call dot
-      Process dot = new Process();
-      dot.StartInfo.CreateNoWindow = true;
-      dot.StartInfo.UseShellExecute = false;
-      dot.StartInfo.FileName = settings.GraphvizAppFolder + @"\dot.exe";
-      if (!File.Exists(dot.StartInfo.FileName))
-        throw new VisualiserConfigurationException("Graphviz executable " + dot.StartInfo.FileName + " not found.");
-      dot.StartInfo.Arguments = "-T" + style + " -K" + algorithm + " -o \"" + svgFile + "\" \"" + dotFile + "\"";
-
-      dot.StartInfo.RedirectStandardError = true;
-      stdErr = new StringBuilder();
-      dot.ErrorDataReceived += StdErrDataReceived;
-
-      dot.Start();
-      dot.BeginErrorReadLine();
-      if (!dot.WaitForExit(5000))
-      {
-        dot.Kill();
-        dot.WaitForExit();
-        RaiseGraphvizRenderingException(svgFile, dotFile);
-      }
-      if(dot.ExitCode != 0)
-        RaiseGraphvizRenderingException(svgFile, dotFile);
-
-      // tidy up
-      try
-      {
-        if (settings.DeleteWorkingFiles)
-        {
-          File.Delete(dotFile);
-          File.Delete(ufFile);
-        }
-      }
-      catch { }
+      // call dot.exe, writing output SVG into svgFile
+      ExecuteGraphviz(GraphvizExecutable.Dot, dotFile, svgFile, "-Tsvg -Kdot");
     }
+
+    // return a DOT script for a specified graph
+    public abstract string GetDotScript(Graph g);
 
     // Calculate an appropriate maxLeafStagger value for Graphviz's unflatten program. Basically:
     //  - if a graph is too wide for the configured MaxSize, aim to unflatten it to make it narrow enough 
@@ -145,30 +92,72 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       }
 
       trace += "; maxLeafStagger = " + maxLeafStagger;
-      if(settings.Verbose)
+      if (settings.Verbose)
         Console.WriteLine(trace);
 
       return maxLeafStagger;
     }
 
-      private void RaiseGraphvizRenderingException(string svgFile, string dotFile)
-    {
-      throw new VisualiserRenderingException("Graphviz error rendering " + svgFile
-        + " from " + dotFile + ": " + stdErr.ToString());
-    }
+    #region Graphviz execution
 
-    private void StdOutDataReceived(object sender, DataReceivedEventArgs e)
-    {
-      stdOut.AppendLine(e.Data);
-    }
+    private StringBuilder stdErr;  // StringBuilder to collect output written to stderr during ExecuteGraphviz()
 
+    // event handler for stderr write events (appends output to stdErr)
     private void StdErrDataReceived(object sender, DataReceivedEventArgs e)
     {
       stdErr.AppendLine(e.Data);
     }
 
-    public abstract string GetDotScript(Graph g);
+    // enum to represent supported Graphviz apps
+    private enum GraphvizExecutable { Dot, Unflatten }
 
+    // execute a Graphviz application
+    private void ExecuteGraphviz(GraphvizExecutable executable, string inputFile, string outputFile, string commandLineArgs)
+    {
+      // prepare to execute Graphviz application
+      Process gv = new Process();
+      gv.StartInfo.CreateNoWindow = true;
+      gv.StartInfo.UseShellExecute = false;
+      gv.StartInfo.FileName = settings.GraphvizAppFolder + "\\" + (executable == GraphvizExecutable.Dot ? "dot" : "unflatten") + ".exe";
+      if (!File.Exists(gv.StartInfo.FileName))
+        throw new VisualiserConfigurationException("Graphviz executable " + gv.StartInfo.FileName + " not found.");
+      gv.StartInfo.Arguments = commandLineArgs + " -o \"" + outputFile + "\" \"" + inputFile + "\"";
+
+      // set up standard error redirection
+      gv.StartInfo.RedirectStandardError = true;
+      stdErr = new StringBuilder();
+      gv.ErrorDataReceived += StdErrDataReceived;
+
+      // execute Graphviz application
+      gv.Start();
+      gv.BeginErrorReadLine();
+      if (!gv.WaitForExit(5000))  // still waiting after 5s? Assume Graphviz has crashed
+      {
+        gv.Kill();
+        gv.WaitForExit();
+        RaiseGraphvizRenderingException(outputFile, inputFile, true);
+      }
+      if (gv.ExitCode != 0)
+        RaiseGraphvizRenderingException(outputFile, inputFile, false);
+
+      // tidy up
+      if (settings.DeleteWorkingFiles)
+        File.Delete(inputFile);
+    }
+
+    private void RaiseGraphvizRenderingException(string outputFile, string inputFile, bool crashed)
+    {
+      throw new VisualiserRenderingException("Graphviz " + (crashed ? "crashed" : "error")
+        + " rendering " + outputFile
+        + " from " + inputFile
+        + Environment.NewLine + stdErr.ToString());
+    }
+
+    #endregion Graphviz execution
+
+    #region DOT script builder functions
+
+    // return a string describing a node's duration, if applicable
     protected string GetDurationDescription(Node n)
     {
       if (!n.HasProperty("AvgDuration"))
@@ -179,6 +168,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       return "Duration = " + string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
     }
 
+    // return a string detailing a node's ID
     protected string GetIdDescription(string id)
     {
       if (id[0] == 'R')
@@ -186,6 +176,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       return "ProcessId = " + id.Substring(1, id.Length - 1);
     }
 
+    // translate DbObjectType enum members to descriptions
     protected string GetTypeDescription(DbObjectType type)
     {
       switch (type)
@@ -203,11 +194,14 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       }
     }
 
+    // get the color name configured for a node's database; if none, default to black
     protected string GetDbColor(Node n)
     {
-      if(settings.DbColors.ContainsKey(n.DbName))
-          return settings.DbColors[n.DbName];
+      if (settings.DbColors.ContainsKey(n.DbName))
+        return settings.DbColors[n.DbName];
       return "black";
     }
+
+    #endregion DOT script builder functions
   }
 }
