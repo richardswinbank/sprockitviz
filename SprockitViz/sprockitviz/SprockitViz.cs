@@ -7,7 +7,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
 {
   /*
    * SprockitViz class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/sprockitviz
    *
    * Main class to run the sprockitviz application
@@ -16,13 +16,13 @@ namespace FireFive.PipelineVisualiser.SprockitViz
   {
     static void Main(string[] args)
     {
-      if (args.Length == 0)
-        args = new string[] { "my_test_sprockit_instance" };  // just for testing in VS
+      //if (args.Length == 0)
+      //  args = new string[] { "my_test_sprockit_instance" };  // just for testing in VS
 
       Console.WriteLine(@"
   ****************************************************************************
   *  Sprockit Pipeline Visualiser                                            *
-  *  Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net)       *
+  *  Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net)       *
   *  http://richardswinbank.net/sprockitviz                                  *
   ****************************************************************************
 ");
