@@ -36,6 +36,17 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       {
          return this.Start == that.Start && this.End == that.End;
       }
+
+      // method implementation to support use of DirectedEdge as Dictionary key
+      public override bool Equals(object obj)
+      {
+         return Equals((DirectedEdge)obj);
+      }
+
+      public override int GetHashCode()
+      {
+         return Start.GetHashCode() * 486187739 + End.GetHashCode();
+      }
    }
 
    // class representing a path (used in subgraphs)
