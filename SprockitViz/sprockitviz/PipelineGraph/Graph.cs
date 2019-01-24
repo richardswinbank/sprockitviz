@@ -20,22 +20,25 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
    {
       private Node centre;
       private Dictionary<string, Node> nodes;  // implemented as dictionary to ensure ID uniqueness
-
-      // collection of edges
-      public IEnumerable<Node> Nodes { get { return nodes.Values; } }
+      private Dictionary<DirectedEdge, bool> pathCache;  // cache of paths tested for existence (accelerates ContainsPath)
 
       // collection of nodes
+      public IEnumerable<Node> Nodes { get { return nodes.Values; } }
+
+      // collection of edges
       public List<DirectedEdge> Edges { get; private set; }
 
-      // instantiate a graph
-      public Graph()
+      // instantiate a graph with a name
+      public Graph(string name)
       {
          nodes = new Dictionary<string, Node>();
          Edges = new List<DirectedEdge>();
+         pathCache = new Dictionary<DirectedEdge, bool>();
+         Name = name;
       }
 
       // instantiate a graph with a nominated centre node
-      public Graph(Node centre) : this()
+      public Graph(Node centre) : this(centre.LongName)
       {
          AddNode(centre);
          this.centre = centre;
@@ -57,15 +60,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       }
 
       // the name of the graph
-      public string Name
-      {
-         get
-         {
-            if (centre == null)
-               return "Pipeline";
-            return centre.LongName;
-         }
-      }
+      public string Name { get; private set; }
 
       // The size of this (directed, acyclic) graph. Calculated by decomposing the graph into "ranks":
       //  - first rank is the set of nodes in the graph with no parents (so the graph *must* be acyclic!)
@@ -180,10 +175,23 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       // return true if this graph contains a path between two specified nodes
       private bool ContainsPath(Node start, Node end)
       {
+         var key = new DirectedEdge(start, end);
+
+         // return cached value (if cached)
+         if (pathCache.ContainsKey(key))
+            return pathCache[key];
+
+         // else calculate and cache value
+         bool containsPath = false;
          foreach (DirectedEdge e in Edges)
             if (e.Start == start && (e.End == end || ContainsPath(e.End, end)))
-               return true;
-         return false;
+            {
+               containsPath = true;
+               break;
+            }
+
+         pathCache.Add(key, containsPath);
+         return containsPath; 
       }
 
       // return true if this graph contains a specified node
