@@ -5,7 +5,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
 {
   /*
    * Node class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Class representing a node (some kind of database object) in an ETL pipeline graph.
@@ -55,14 +55,14 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       return "Node[Id=" + Id + ",LongName=" + LongName + ",Type=" + Type;
     }
 
-    // return true if parameter "edges" contains edges that form a path from this node to parameter "end"
-    internal bool LeadsTo(Node end, List<DirectedEdge> edges)
-    {
-      foreach (DirectedEdge e in edges)
-        if (e.Start == this && (e.End == end || e.End.LeadsTo(end, edges)))
-          return true;
-      return false;
-    }
+    //// return true if parameter "edges" contains edges that form a path from this node to parameter "end"
+    //internal bool LeadsTo(Node end, List<DirectedEdge> edges)
+    //{
+    //  foreach (DirectedEdge e in edges)
+    //    if (e.Start == this && (e.End == end || e.End.LeadsTo(end, edges)))
+    //      return true;
+    //  return false;
+    //}
 
     // return true if parameter "nodes" contains a node 'parent' 
     // and parameter "edges" contains an edge 'parent' -> this.

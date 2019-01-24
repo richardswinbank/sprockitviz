@@ -6,7 +6,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 {
   /*
    * IGraphvizSettings interface
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Settings for GraphvizVisualiser.

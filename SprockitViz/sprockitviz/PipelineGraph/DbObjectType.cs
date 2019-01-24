@@ -2,7 +2,7 @@
 {
   /*
    * DbObjectType enumeration
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Available types of database object.

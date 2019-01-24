@@ -4,7 +4,7 @@ namespace FireFive.PipelineVisualiser.GraphSource
 {
   /*
    * AbstractGraphSource class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Represents a source of PipelineGraph.Graph information

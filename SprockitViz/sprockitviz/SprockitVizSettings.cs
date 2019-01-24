@@ -10,7 +10,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
 {
   /*
    * SprockitVizSettings class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/sprockitviz
    *
    * Settings for the sprockitviz application. Extends ConfigurationSection to

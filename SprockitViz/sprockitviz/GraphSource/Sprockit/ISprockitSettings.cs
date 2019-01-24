@@ -5,7 +5,7 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
 {
   /*
    * ISprockitSettings interface
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/sprockitviz
    *
    * Settings for SprockitGraphSource.

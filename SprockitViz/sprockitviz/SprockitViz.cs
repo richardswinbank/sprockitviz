@@ -22,7 +22,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       Console.WriteLine(@"
   ****************************************************************************
   *  Sprockit Pipeline Visualiser                                            *
-  *  Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net)       *
+  *  Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net)  *
   *  http://richardswinbank.net/sprockitviz                                  *
   ****************************************************************************
 ");

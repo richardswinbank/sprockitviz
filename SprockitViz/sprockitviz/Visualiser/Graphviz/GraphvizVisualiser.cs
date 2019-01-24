@@ -8,7 +8,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 {
   /*
    * GraphvizVisualiser class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Implementation of AbstractVisualiser as wrapper for Graphviz application.

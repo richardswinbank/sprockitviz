@@ -5,7 +5,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 {
   /*
    * BasicVisualiser class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Style-specific implementation of GraphvizVisualiser -- provides an implementation of 

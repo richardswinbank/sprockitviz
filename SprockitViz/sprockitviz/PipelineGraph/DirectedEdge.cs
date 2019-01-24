@@ -4,7 +4,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
 {
   /*
    * DirectedEdge class
-   * Copyright (C) 2018 Richard Swinbank (richard@richardswinbank.net) 
+   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
    * http://richardswinbank.net/
    *
    * Class representing an edge in a directed graph.
