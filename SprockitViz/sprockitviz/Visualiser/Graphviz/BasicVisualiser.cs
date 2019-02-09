@@ -61,7 +61,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       // return Graphviz edge style for a specified edge
       private string GetEdgeStyle(DirectedEdge e)
       {
-         if (e is DirectedPath)
+         if (e is DirectedConnection)
             return "dashed";
          return "solid";
       }

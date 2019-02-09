@@ -61,6 +61,9 @@ namespace FireFive.PipelineVisualiser.SprockitViz
             Console.WriteLine(" ERROR: " + e.Message);
          }
 
+         // visualise the critical path
+         settings.Visualiser.Visualise(graph.CriticalPath());
+
          // visualise the subgraph around each node in the graph
          int i = 0;
          foreach (Node n in graph.Nodes)

@@ -50,22 +50,28 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
                         case "NodeId":
                            break;
                         case "ShortName":
-                           n.ShortName = (string)rdr["ShortName"];
+                           n.ShortName = (string)rdr[columnName];
                            break;
                         case "LongName":
-                           n.LongName = (string)rdr["LongName"];
+                           n.LongName = (string)rdr[columnName];
                            break;
                         case "DbName":
-                           n.DbName = (string)rdr["DbName"];
+                           n.DbName = (string)rdr[columnName];
                            break;
                         case "ObjectType":
-                           n.Type = GetNodeType(rdr["ObjectType"] == DBNull.Value ? "" : (string)rdr["ObjectType"]);
+                           n.Type = GetNodeType(rdr[columnName] == DBNull.Value ? "" : (string)rdr[columnName]);
+                           break;
+                        case "AvgDuration":
+                           if (rdr[columnName] != DBNull.Value)
+                           {
+                              n.Weight = (int)rdr[columnName];
+                              n.SetProperty(columnName, rdr[columnName].ToString());
+                           }
                            break;
                         default:
                            if (rdr[columnName] != DBNull.Value)
                               n.SetProperty(columnName, rdr[columnName].ToString());
                            break;
-
                      }
                   }
                   graph.AddNode(n);

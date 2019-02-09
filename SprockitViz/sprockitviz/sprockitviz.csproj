@@ -45,6 +45,7 @@
     <Compile Include="GraphSource\Sprockit\CCSprockitGraph.cs" />
     <Compile Include="GraphSource\Sprockit\ISprockitSettings.cs" />
     <Compile Include="GraphSource\Sprockit\SprockitGraphSource.cs" />
+    <Compile Include="PipelineGraph\DirectedPath.cs" />
     <Compile Include="PipelineGraph\DirectedEdge.cs" />
     <Compile Include="PipelineGraph\Graph.cs" />
     <Compile Include="PipelineGraph\Node.cs" />

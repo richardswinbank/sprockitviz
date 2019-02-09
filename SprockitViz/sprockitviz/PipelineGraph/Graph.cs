@@ -25,6 +25,15 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       // collection of nodes
       public IEnumerable<Node> Nodes { get { return nodes.Values; } }
 
+      // get the node collection as a List object
+      private List<Node> ConvertNodesToList()
+      {
+         var list = new List<Node>();
+         foreach (var n in Nodes)
+            list.Add(n);
+         return list;
+      }
+
       // collection of edges
       public List<DirectedEdge> Edges { get; private set; }
 
@@ -69,11 +78,8 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       // Width is the size of the widest rank, height is the number of ranks.
       public Size GetSize()
       {
-         List<Node> graph = new List<Node>();
-         foreach (Node n in Nodes)
-            graph.Add(n);
          Size size = Size.Empty;
-         GetSize(graph, size);
+         GetSize(ConvertNodesToList(), size);
          return size;
       }
 
@@ -93,6 +99,43 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
          foreach (Node root in roots)
             subgraph.Remove(root);
          GetSize(subgraph, size);
+      }
+
+      // identify the critical path (path with the greatest weight) through this graph 
+      public Graph CriticalPath()
+      {
+         DirectedPath criticalPath = null;
+         foreach (Node root in Roots(ConvertNodesToList()))
+         {
+            var cp = CriticalPath(root);
+            if (criticalPath == null || cp.Weight > criticalPath.Weight)
+               criticalPath = cp;
+         }
+
+         Graph gcp = new Graph("CriticalPath");
+         string prevId = null;
+         for (int i = 0; i < criticalPath.Count; i++)
+         {
+            gcp.AddNode(criticalPath[i]);
+            if (i > 0)
+               gcp.AddEdge(prevId, criticalPath[i].Id);
+            prevId = criticalPath[i].Id;
+         }
+         return gcp;
+      }
+
+      // identify the critical path (path with the greatest weight) through this graph from a specified node
+      private DirectedPath CriticalPath(Node n)
+      {
+         DirectedPath criticalPath = null;
+         foreach (DirectedEdge e in Edges)
+            if (e.Start == n)
+            {
+               var cp = CriticalPath(e.End);
+               if (criticalPath == null || cp.Weight > criticalPath.Weight)
+                  criticalPath = cp;
+            }
+         return criticalPath == null ? new DirectedPath(n) : criticalPath.Prefix(n);
       }
 
       // return the roots of a graph
@@ -126,14 +169,14 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
          foreach (Node start in subgraph.Nodes)
             foreach (Node end in subgraph.Nodes)
                if (this.ContainsPath(start, end) && !subgraph.ContainsPath(start, end))
-                  subgraph.Edges.Add(new DirectedPath(start, end));
+                  subgraph.Edges.Add(new DirectedConnection(start, end));
 
          // the approach to adding indirect edges might add redundant edges 
          // depending on the order in which it finds them -- remove them here
          for (int i = subgraph.Edges.Count - 1; i >= 0; i--)
-            if (subgraph.Edges[i] is DirectedPath)
+            if (subgraph.Edges[i] is DirectedConnection)
             {
-               DirectedPath ie = (DirectedPath)subgraph.Edges[i];
+               DirectedConnection ie = (DirectedConnection)subgraph.Edges[i];
                subgraph.Edges.Remove(ie);
                if (!subgraph.ContainsPath(ie.Start, ie.End))
                   subgraph.Edges.Add(ie);
@@ -191,7 +234,7 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
             }
 
          pathCache.Add(key, containsPath);
-         return containsPath; 
+         return containsPath;
       }
 
       // return true if this graph contains a specified node

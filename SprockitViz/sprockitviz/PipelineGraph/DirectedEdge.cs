@@ -49,10 +49,10 @@ namespace FireFive.PipelineVisualiser.PipelineGraph
       }
    }
 
-   // class representing a path (used in subgraphs)
-   public class DirectedPath : DirectedEdge
+   // class to represent a path by its endpoints (used in subgraphs)
+   public class DirectedConnection : DirectedEdge
    {
-      public DirectedPath(Node start, Node end) : base(start, end)
+      public DirectedConnection(Node start, Node end) : base(start, end)
       {
       }
    }
