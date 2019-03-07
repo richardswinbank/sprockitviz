@@ -102,6 +102,7 @@ namespace FireFive.PipelineVisualiser.GraphSource.Sprockit
                return DbObjectType.StoredProcedure;
             case "V":
                return DbObjectType.View;
+            case "TF":
             case "IF":
                return DbObjectType.TableValuedFunction;
             case "FN":
