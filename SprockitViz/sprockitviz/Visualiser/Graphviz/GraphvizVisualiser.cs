@@ -6,202 +6,219 @@ using System.Text;
 
 namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 {
-  /*
-   * GraphvizVisualiser class
-   * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
-   * http://richardswinbank.net/
-   *
-   * Implementation of AbstractVisualiser as wrapper for Graphviz application.
-   */
-  public abstract class GraphvizVisualiser : AbstractVisualiser
-  {
-    // configuration for this visualiser
-    private IGraphvizSettings settings;
+   /*
+    * GraphvizVisualiser class
+    * Copyright (c) 2018-2019 Richard Swinbank (richard@richardswinbank.net) 
+    * http://richardswinbank.net/
+    *
+    * Implementation of AbstractVisualiser as wrapper for Graphviz application.
+    */
+   public abstract class GraphvizVisualiser : AbstractVisualiser
+   {
+      // configuration for this visualiser
+      private IGraphvizSettings settings;
 
-    // create a new instance with a specified configuration
-    public GraphvizVisualiser(IGraphvizSettings settings)
-    {
-      this.settings = settings;
-    }
-
-    // get a DOT script for a graph, then invoke Graphviz to produce an image in SVG format
-    public override void Visualise(Graph g)
-    {
-      // make sure we have an output folder
-      string outputFolder = settings.OutputFolder;
-      if (!Directory.Exists(outputFolder))
-        Directory.CreateDirectory(outputFolder);
-
-      // prepare working & output file names
-      string ufFile = outputFolder + "\\" + g.Name + ".uf";
-      string dotFile = outputFolder + "\\" + g.Name + ".gv";
-      string svgFile = outputFolder + "\\" + g.Name + ".svg";
-
-      // needs unflatten?
-      int maxLeafStagger = GetMaxLeafStagger(g);
-      if (maxLeafStagger > 0)  // unflatten
+      // create a new instance with a specified configuration
+      public GraphvizVisualiser(IGraphvizSettings settings)
       {
-        // write the DOT script into a different file (we want to be able to keep inputs 
-        // for unflatten.exe *and* dot.exe when settings.DeleteWorkingFiles is false)
-        File.WriteAllText(ufFile, GetDotScript(g));
-        // call unflatten.exe, writing output script into dotFile
-        ExecuteGraphviz(GraphvizExecutable.Unflatten, ufFile, dotFile, "-fl" + maxLeafStagger);
-      }
-      else
-      {
-        // write input script directly into dotFile
-        File.WriteAllText(dotFile, GetDotScript(g));
+         this.settings = settings;
       }
 
-      // call dot.exe, writing output SVG into svgFile
-      ExecuteGraphviz(GraphvizExecutable.Dot, dotFile, svgFile, "-Tsvg -Kdot");
-    }
-
-    // return a DOT script for a specified graph
-    public abstract string GetDotScript(Graph g);
-
-    // Calculate an appropriate maxLeafStagger value for Graphviz's unflatten program. Basically:
-    //  - if a graph is too wide for the configured MaxSize, aim to unflatten it to make it narrow enough 
-    //  - if a graph is too wide *and* too tall, aim to unflatten it into something approaching the same aspect ratio as MaxSize
-    private int GetMaxLeafStagger(Graph g)
-    {
-      Size size = g.GetSize();
-      float overSize = (float)size.Width / settings.MaxSize.Width;
-
-      if (overSize <= 1)  // not too wide
-        return 0;
-
-      int maxLeafStagger = 0;
-      string trace = size.ToString() + "; match ";
-
-      if (overSize * size.Height > settings.MaxSize.Height)
-      // compressing to MaxWidth wouldn't fit on the page -- try to match aspect ratio
+      // get a DOT script for a graph, then invoke Graphviz to produce an image in SVG format
+      public override void Visualise(Graph g)
       {
-        float density = (float)g.NodeCount / (size.Width * size.Height);
-        density = 1;
-        float targetCount = settings.MaxSize.Width * settings.MaxSize.Height * density;
-        float targetWidth = g.NodeCount / targetCount * settings.MaxSize.Width;
+         // make sure we have an output folder
+         string outputFolder = settings.OutputFolder;
+         if (!Directory.Exists(outputFolder))
+            Directory.CreateDirectory(outputFolder);
 
-        maxLeafStagger = (int)((g.NodeCount + 1) / targetWidth);
-        trace += "aspect ratio";
+         // prepare working & output file names
+         string ufFile = outputFolder + "\\" + g.Name + ".uf";
+         string dotFile = outputFolder + "\\" + g.Name + ".gv";
+         string svgFile = outputFolder + "\\" + g.Name + ".svg";
+
+         // needs unflatten?
+         int maxLeafStagger = GetMaxLeafStagger(g);
+         if (maxLeafStagger > 0)  // unflatten
+         {
+            // write the DOT script into a different file (we want to be able to keep inputs 
+            // for unflatten.exe *and* dot.exe when settings.DeleteWorkingFiles is false)
+            File.WriteAllText(ufFile, GetDotScript(g, settings.OutputFormat));
+            // call unflatten.exe, writing output script into dotFile
+            ExecuteGraphviz(GraphvizExecutable.Unflatten, ufFile, dotFile, "-fl" + maxLeafStagger);
+         }
+         else
+         {
+            // write input script directly into dotFile
+            File.WriteAllText(dotFile, GetDotScript(g, settings.OutputFormat));
+         }
+
+         // call dot.exe, writing output SVG into svgFile
+         ExecuteGraphviz(GraphvizExecutable.Dot, dotFile, svgFile, "-Tsvg -Kdot");
+
+         if (settings.OutputFormat == GraphvizOutputFormat.Html)
+         {
+            string htmlFile = outputFolder + "\\" + g.Name + ".html";
+            string html = "<html><head><title>" + settings.Version + " - " + g.Name + @"</title>"
+              + "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + settings.HtmlStyleSheet + "\"></head><body>"
+              + "<h1>" + g.Name + "</h1>"
+              + "<p>" + File.ReadAllText(svgFile) + "</p>"
+              + "<p>Generated by <a href=\"http://richardswinbank.net/sprockitviz\">" + settings.Version 
+              + "</a> at " + DateTime.Now.ToString("dd-MMM-yyyy HH:mm:ss") + "</p>"
+              + "</body></html>";
+
+            File.WriteAllText(htmlFile, html);
+            if (settings.DeleteWorkingFiles)
+               File.Delete(svgFile);
+         }
       }
-      else // try to compress to MaxWidth
+
+      // return a DOT script for a specified graph
+      // outputFormat isn't strictly necessary as a parameter here, but presence reminds implementers to support it!
+      public abstract string GetDotScript(Graph g, GraphvizOutputFormat outputFormat);
+
+      // Calculate an appropriate maxLeafStagger value for Graphviz's unflatten program. Basically:
+      //  - if a graph is too wide for the configured MaxSize, aim to unflatten it to make it narrow enough 
+      //  - if a graph is too wide *and* too tall, aim to unflatten it into something approaching the same aspect ratio as MaxSize
+      private int GetMaxLeafStagger(Graph g)
       {
-        maxLeafStagger = (g.NodeCount + 1) / settings.MaxSize.Width;
-        trace += "max width";
+         Size size = g.GetSize();
+         float overSize = (float)size.Width / settings.MaxSize.Width;
+
+         if (overSize <= 1)  // not too wide
+            return 0;
+
+         int maxLeafStagger = 0;
+         string trace = size.ToString() + "; match ";
+
+         if (overSize * size.Height > settings.MaxSize.Height)
+         // compressing to MaxWidth wouldn't fit on the page -- try to match aspect ratio
+         {
+            float density = (float)g.NodeCount / (size.Width * size.Height);
+            density = 1;
+            float targetCount = settings.MaxSize.Width * settings.MaxSize.Height * density;
+            float targetWidth = g.NodeCount / targetCount * settings.MaxSize.Width;
+
+            maxLeafStagger = (int)((g.NodeCount + 1) / targetWidth);
+            trace += "aspect ratio";
+         }
+         else // try to compress to MaxWidth
+         {
+            maxLeafStagger = (g.NodeCount + 1) / settings.MaxSize.Width;
+            trace += "max width";
+         }
+
+         trace += "; maxLeafStagger = " + maxLeafStagger;
+         if (settings.Verbose)
+            Console.WriteLine(trace);
+
+         return maxLeafStagger;
       }
 
-      trace += "; maxLeafStagger = " + maxLeafStagger;
-      if (settings.Verbose)
-        Console.WriteLine(trace);
+      #region Graphviz execution
 
-      return maxLeafStagger;
-    }
+      private StringBuilder stdErr;  // StringBuilder to collect output written to stderr during ExecuteGraphviz()
 
-    #region Graphviz execution
-
-    private StringBuilder stdErr;  // StringBuilder to collect output written to stderr during ExecuteGraphviz()
-
-    // event handler for stderr write events (appends output to stdErr)
-    private void StdErrDataReceived(object sender, DataReceivedEventArgs e)
-    {
-      stdErr.AppendLine(e.Data);
-    }
-
-    // enum to represent supported Graphviz apps
-    private enum GraphvizExecutable { Dot, Unflatten }
-
-    // execute a Graphviz application
-    private void ExecuteGraphviz(GraphvizExecutable executable, string inputFile, string outputFile, string commandLineArgs)
-    {
-      // prepare to execute Graphviz application
-      Process gv = new Process();
-      gv.StartInfo.CreateNoWindow = true;
-      gv.StartInfo.UseShellExecute = false;
-      gv.StartInfo.FileName = settings.GraphvizAppFolder + "\\" + (executable == GraphvizExecutable.Dot ? "dot" : "unflatten") + ".exe";
-      if (!File.Exists(gv.StartInfo.FileName))
-        throw new VisualiserConfigurationException("Graphviz executable " + gv.StartInfo.FileName + " not found.");
-      gv.StartInfo.Arguments = commandLineArgs + " -o \"" + outputFile + "\" \"" + inputFile + "\"";
-
-      // set up standard error redirection
-      gv.StartInfo.RedirectStandardError = true;
-      stdErr = new StringBuilder();
-      gv.ErrorDataReceived += StdErrDataReceived;
-
-      // execute Graphviz application
-      gv.Start();
-      gv.BeginErrorReadLine();
-      if (!gv.WaitForExit(5000))  // still waiting after 5s? Assume Graphviz has crashed
+      // event handler for stderr write events (appends output to stdErr)
+      private void StdErrDataReceived(object sender, DataReceivedEventArgs e)
       {
-        gv.Kill();
-        gv.WaitForExit();
-        RaiseGraphvizRenderingException(outputFile, inputFile, true);
+         stdErr.AppendLine(e.Data);
       }
-      if (gv.ExitCode != 0)
-        RaiseGraphvizRenderingException(outputFile, inputFile, false);
 
-      // tidy up
-      if (settings.DeleteWorkingFiles)
-        File.Delete(inputFile);
-    }
+      // enum to represent supported Graphviz apps
+      private enum GraphvizExecutable { Dot, Unflatten }
 
-    private void RaiseGraphvizRenderingException(string outputFile, string inputFile, bool crashed)
-    {
-      throw new VisualiserRenderingException("Graphviz " + (crashed ? "crashed" : "error")
-        + " rendering " + outputFile
-        + " from " + inputFile
-        + Environment.NewLine + stdErr.ToString());
-    }
-
-    #endregion Graphviz execution
-
-    #region DOT script builder functions
-
-    // return a string describing a node's duration, if applicable
-    protected string GetDurationDescription(Node n)
-    {
-      if (!n.HasProperty("AvgDuration"))
-        return "";
-      int duration = 0;
-      int.TryParse(n.GetProperty("AvgDuration"), out duration);
-      TimeSpan t = TimeSpan.FromSeconds(duration);
-      return "Duration = " + string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
-    }
-
-    // return a string detailing a node's ID
-    protected string GetIdDescription(string id)
-    {
-      if (id[0] == 'R')
-        return "ResourceUid = " + id.Substring(1, id.Length - 1);
-      return "ProcessId = " + id.Substring(1, id.Length - 1);
-    }
-
-    // translate DbObjectType enum members to descriptions
-    protected string GetTypeDescription(DbObjectType type)
-    {
-      switch (type)
+      // execute a Graphviz application
+      private void ExecuteGraphviz(GraphvizExecutable executable, string inputFile, string outputFile, string commandLineArgs)
       {
-        case DbObjectType.StoredProcedure:
-          return "Stored procedure";
-        case DbObjectType.SsisPackage:
-          return "SSIS package";
-        case DbObjectType.ScalarFunction:
-          return "Scalar function";
-        case DbObjectType.TableValuedFunction:
-          return "Table-valued function";
-        default:
-          return type.ToString();
+         // prepare to execute Graphviz application
+         Process gv = new Process();
+         gv.StartInfo.CreateNoWindow = true;
+         gv.StartInfo.UseShellExecute = false;
+         gv.StartInfo.FileName = settings.GraphvizAppFolder + "\\" + (executable == GraphvizExecutable.Dot ? "dot" : "unflatten") + ".exe";
+         if (!File.Exists(gv.StartInfo.FileName))
+            throw new VisualiserConfigurationException("Graphviz executable " + gv.StartInfo.FileName + " not found.");
+         gv.StartInfo.Arguments = commandLineArgs + " -o \"" + outputFile + "\" \"" + inputFile + "\"";
+
+         // set up standard error redirection
+         gv.StartInfo.RedirectStandardError = true;
+         stdErr = new StringBuilder();
+         gv.ErrorDataReceived += StdErrDataReceived;
+
+         // execute Graphviz application
+         gv.Start();
+         gv.BeginErrorReadLine();
+         if (!gv.WaitForExit(5000))  // still waiting after 5s? Assume Graphviz has crashed
+         {
+            gv.Kill();
+            gv.WaitForExit();
+            RaiseGraphvizRenderingException(outputFile, inputFile, true);
+         }
+         if (gv.ExitCode != 0)
+            RaiseGraphvizRenderingException(outputFile, inputFile, false);
+
+         // tidy up
+         if (settings.DeleteWorkingFiles)
+            File.Delete(inputFile);
       }
-    }
 
-    // get the color name configured for a node's database; if none, default to black
-    protected string GetDbColor(Node n)
-    {
-      if (settings.DbColors.ContainsKey(n.DbName))
-        return settings.DbColors[n.DbName];
-      return "black";
-    }
+      private void RaiseGraphvizRenderingException(string outputFile, string inputFile, bool crashed)
+      {
+         throw new VisualiserRenderingException("Graphviz " + (crashed ? "crashed" : "error")
+           + " rendering " + outputFile
+           + " from " + inputFile
+           + Environment.NewLine + stdErr.ToString());
+      }
 
-    #endregion DOT script builder functions
-  }
+      #endregion Graphviz execution
+
+      #region DOT script builder functions
+
+      // return a string describing a node's duration, if applicable
+      protected string GetDurationDescription(Node n)
+      {
+         if (!n.HasProperty("AvgDuration"))
+            return "";
+         int duration = 0;
+         int.TryParse(n.GetProperty("AvgDuration"), out duration);
+         TimeSpan t = TimeSpan.FromSeconds(duration);
+         return "Duration = " + string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
+      }
+
+      // return a string detailing a node's ID
+      protected string GetIdDescription(string id)
+      {
+         if (id[0] == 'R')
+            return "ResourceUid = " + id.Substring(1, id.Length - 1);
+         return "ProcessId = " + id.Substring(1, id.Length - 1);
+      }
+
+      // translate DbObjectType enum members to descriptions
+      protected string GetTypeDescription(DbObjectType type)
+      {
+         switch (type)
+         {
+            case DbObjectType.StoredProcedure:
+               return "Stored procedure";
+            case DbObjectType.SsisPackage:
+               return "SSIS package";
+            case DbObjectType.ScalarFunction:
+               return "Scalar function";
+            case DbObjectType.TableValuedFunction:
+               return "Table-valued function";
+            default:
+               return type.ToString();
+         }
+      }
+
+      // get the color name configured for a node's database; if none, default to black
+      protected string GetDbColor(Node n)
+      {
+         if (settings.DbColors.ContainsKey(n.DbName))
+            return settings.DbColors[n.DbName];
+         return "black";
+      }
+
+      #endregion DOT script builder functions
+   }
 }

@@ -21,7 +21,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       #region GraphvizVisualiser implementation
 
       // return a DOT script for a specified graph
-      public override string GetDotScript(Graph g)
+      public override string GetDotScript(Graph g, GraphvizOutputFormat outputFormat)
       {
          StringBuilder sb = new StringBuilder();
 
@@ -36,7 +36,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
               + ",tooltip=" + Enquote(GetTooltip(n))
               + ",style=" + Enquote(GetNodeStyle(n, g) + ",rounded")
               + ",fontcolor=" + Enquote(GetFontColor(n))
-              + ",href=" + Enquote(n.LongName + ".svg")
+              + ",href=" + Enquote(n.LongName + "." + (outputFormat == GraphvizOutputFormat.Html ? "html" : "svg"))
               + (g.IsCentre(n) ? ",fillcolor=gold" : "")
               + ",penwidth=" + GetPenWidth(n)
               + "];");

@@ -1,6 +1,8 @@
 ﻿using FireFive.PipelineVisualiser.PipelineGraph;
 using FireFive.PipelineVisualiser.Visualiser;
+using FireFive.PipelineVisualiser.Visualiser.Graphviz;
 using System;
+using System.IO;
 using System.Threading;
 
 namespace FireFive.PipelineVisualiser.SprockitViz
@@ -26,7 +28,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
   *  http://richardswinbank.net/sprockitviz                                  *
   ****************************************************************************
 ");
-         Thread.Sleep(2000);
+         Thread.Sleep(1500);
          SprockitVizSettings settings = null;
          try
          {
@@ -41,7 +43,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
          catch (Exception e)
          {
             Console.WriteLine("ERROR: " + e.Message);
-            if (settings != null && settings.Verbose)
+            if (settings == null || settings.Verbose)
                Console.WriteLine(e);  // dump whole stack trace
          }
       }
@@ -99,6 +101,13 @@ namespace FireFive.PipelineVisualiser.SprockitViz
             {
                Console.WriteLine(" ERROR: " + e.Message);
             }
+         }
+
+         if (settings.OutputFormat == GraphvizOutputFormat.Html)
+         {
+            string cssFile = settings.OutputFolder + "\\" + settings.HtmlStyleSheet;
+            string css = File.ReadAllText(settings.HtmlStyleSheet);
+            File.WriteAllText(cssFile, css);
          }
       }
    }
