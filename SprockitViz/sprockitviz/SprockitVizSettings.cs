@@ -163,10 +163,13 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       {
          public override object ConvertFrom(ITypeDescriptorContext ctx, CultureInfo culture, object value)
          {
-            switch (value.ToString())
+            switch (value.ToString().ToLower())
             {
                case "html":
                   return GraphvizOutputFormat.Html;
+               case "jpeg":
+               case "jpg":
+                  return GraphvizOutputFormat.Jpeg;
                default:
                   return GraphvizOutputFormat.Svg;
             }

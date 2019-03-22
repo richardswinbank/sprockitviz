@@ -42,6 +42,6 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 
    public enum GraphvizOutputFormat
    {
-      Svg, Html
+      Svg, Html, Jpeg
    }
 }

@@ -13,20 +13,23 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
     */
    class BasicVisualiser : GraphvizVisualiser
    {
+      private IGraphvizSettings settings;
+
       // create a new instance with a specified configuration
       public BasicVisualiser(IGraphvizSettings settings) : base(settings)
       {
+         this.settings = settings;
       }
 
       #region GraphvizVisualiser implementation
 
       // return a DOT script for a specified graph
-      public override string GetDotScript(Graph g, GraphvizOutputFormat outputFormat)
+      public override string GetDotScript(Graph g)
       {
          StringBuilder sb = new StringBuilder();
 
          // graph header
-         sb.AppendLine("digraph " + Enquote(g.Name) + " {");
+         sb.AppendLine("digraph " + Enquote(settings.OutputFormat == GraphvizOutputFormat.Html ? settings.Version : g.Name) + " {");
          sb.AppendLine("  node[shape=box,fontname=helvetica];");
 
          // add nodes
@@ -36,7 +39,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
               + ",tooltip=" + Enquote(GetTooltip(n))
               + ",style=" + Enquote(GetNodeStyle(n, g) + ",rounded")
               + ",fontcolor=" + Enquote(GetFontColor(n))
-              + ",href=" + Enquote(n.LongName + "." + (outputFormat == GraphvizOutputFormat.Html ? "html" : "svg"))
+              + ",href=" + Enquote(n.LongName + "." + (settings.OutputFormat == GraphvizOutputFormat.Html ? "html" : "svg"))
               + (g.IsCentre(n) ? ",fillcolor=gold" : "")
               + ",penwidth=" + GetPenWidth(n)
               + "];");
