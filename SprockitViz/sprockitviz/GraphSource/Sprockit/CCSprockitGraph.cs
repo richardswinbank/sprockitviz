@@ -38,11 +38,16 @@ SELECT
     WHEN ProcessType IN ('SSIS', 'P') THEN AvgDuration
   END AvgDuration
 FROM sprockit.uvw_Process p
-  LEFT JOIN sprockit.uvw_Resource sq 
-    ON sq.ProcessId = p.ProcessId
-    AND sq.IsInput = 0
-    AND sq.IsStoredQuery = 1
-    AND sq.FqProcessName = sq.FqResourceName
+  LEFT JOIN (
+    SELECT
+      ProcessId
+    , MAX(ResourceUid) AS ResourceUid
+    FROM sprockit.uvw_Resource
+    WHERE IsInput = 0
+    GROUP BY ProcessId
+    HAVING COUNT(*) = 1
+    AND MAX(FqProcessName) = MAX(FqResourceName)
+  ) sq ON sq.ProcessId = p.ProcessId
 WHERE sq.ProcessId IS NULL  -- exclude stored-query processes
 
 UNION  -- ensures ResourceUid unique in next SELECT
@@ -81,13 +86,18 @@ SELECT DISTINCT
     ELSE 'R' + CAST(r.ResourceUid AS VARCHAR) 
   END AS EndNodeId 
 FROM sprockit.uvw_Resource r 
-  LEFT JOIN sprockit.uvw_Resource sq 
-    ON sq.ProcessId = r.ProcessId
-    AND sq.IsInput = 0
-    AND sq.IsStoredQuery = 1
-    AND sq.FqProcessName = sq.FqResourceName
+  LEFT JOIN (
+    SELECT
+      ProcessId
+    , MAX(ResourceUid) AS ResourceUid
+    FROM sprockit.uvw_Resource
+    WHERE IsInput = 0
+    GROUP BY ProcessId
+    HAVING COUNT(*) = 1
+    AND MAX(FqProcessName) = MAX(FqResourceName)
+  ) sq ON sq.ProcessId = r.ProcessId
 WHERE r.IsInput = 1
-OR (r.IsInput = 0 AND sq.ResourceId IS NULL)
+OR (r.IsInput = 0 AND sq.ResourceUid IS NULL)
 ";
     }
   }

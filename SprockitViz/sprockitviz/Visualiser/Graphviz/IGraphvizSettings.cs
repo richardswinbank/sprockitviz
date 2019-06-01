@@ -37,7 +37,12 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
       // optional name of CSS stylesheet for use with HTML output format
       string HtmlStyleSheet { get; }
 
+      string JavaScriptFile { get; }
+
       string Version { get; }
+
+      // wait no longer than this for Graphviz to execute
+      int GraphvizTimeout { get; }
    }
 
    public enum GraphvizOutputFormat

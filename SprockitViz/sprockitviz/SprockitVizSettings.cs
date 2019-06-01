@@ -176,12 +176,20 @@ namespace FireFive.PipelineVisualiser.SprockitViz
          }
       }
 
-      [ConfigurationProperty("htmlStyleSheet", DefaultValue = "sprockitviz.css", IsRequired = false)]
+      [ConfigurationProperty("htmlStyleSheet", DefaultValue = "_sprockitviz.css", IsRequired = false)]
       public string HtmlStyleSheet
       {
          get
          {
             return (string)this["htmlStyleSheet"];
+         }
+      }
+
+      public string JavaScriptFile
+      {
+         get
+         {
+            return "_sprockitviz.js";
          }
       }
 
@@ -202,6 +210,16 @@ namespace FireFive.PipelineVisualiser.SprockitViz
          get
          {
             return (bool)this["deleteWorkingFiles"];
+         }
+      }
+
+      // wait no longer than this for Graphviz to execute
+      [ConfigurationProperty("graphvizTimeout", DefaultValue = 5, IsRequired = false)]
+      public int GraphvizTimeout
+      {
+         get
+         {
+            return (int)this["graphvizTimeout"];
          }
       }
 

@@ -19,7 +19,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       static void Main(string[] args)
       {
          if (args.Length == 0)
-            args = new string[] { "my_test_sprockit_instance" };  // just for testing in VS
+            args = new string[] { "_testing_201901061708" };  // just for testing in VS
 
          Console.WriteLine(@"
   ****************************************************************************
@@ -51,6 +51,18 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       // build visualisations for an ETL pipeline graph using config info from SprockitVizSettings
       private void Run(SprockitVizSettings settings)
       {
+         // copy CSS & JS files if required
+         if (settings.OutputFormat == GraphvizOutputFormat.Html)
+         {
+            string fileName = settings.OutputFolder + "\\" + settings.HtmlStyleSheet;
+            string fileContents = File.ReadAllText(settings.HtmlStyleSheet);
+            File.WriteAllText(fileName, fileContents);
+
+            fileName = settings.OutputFolder + "\\" + settings.JavaScriptFile;
+            fileContents = File.ReadAllText(settings.JavaScriptFile);
+            File.WriteAllText(fileName, fileContents);
+         }
+
          // get the graph
          var graph = settings.GraphSource.GetGraph();
          try
@@ -101,13 +113,6 @@ namespace FireFive.PipelineVisualiser.SprockitViz
             {
                Console.WriteLine(" ERROR: " + e.Message);
             }
-         }
-
-         if (settings.OutputFormat == GraphvizOutputFormat.Html)
-         {
-            string cssFile = settings.OutputFolder + "\\" + settings.HtmlStyleSheet;
-            string css = File.ReadAllText(settings.HtmlStyleSheet);
-            File.WriteAllText(cssFile, css);
          }
       }
    }
