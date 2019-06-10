@@ -100,6 +100,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
          {
             case DbObjectType.View:
             case DbObjectType.ScalarFunction:
+            case DbObjectType.TableValuedFunction:
                style = "dashed";
                break;
             case DbObjectType.Unknown:
