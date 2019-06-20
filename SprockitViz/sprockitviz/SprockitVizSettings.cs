@@ -50,7 +50,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       {
          context = null;
          foreach (SprockitInstance i in SprockitInstances)
-            if (i.Alias == instanceAlias)
+            if (i.Alias.ToLower() == instanceAlias.ToLower())
                context = i;
          if (context == null)
             throw new VisualiserConfigurationException("Instance alias '" + instanceAlias + "' not defined.");
