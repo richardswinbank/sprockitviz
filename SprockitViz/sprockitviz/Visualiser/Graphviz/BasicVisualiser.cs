@@ -39,7 +39,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
         switch (settings.OutputFormat)
         {
           case GraphvizOutputFormat.App:
-            nodeUrl = "sprockitviz.html?node=" + n.LongName;
+            nodeUrl = settings.HtmlAppFile + "?node=" + n.LongName;
             break;
           case GraphvizOutputFormat.Html:
             nodeUrl = n.LongName + ".html";
@@ -56,7 +56,7 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
           + ",style=" + Enquote(GetNodeStyle(n, g) + ",rounded")
           + ",fontcolor=" + Enquote(GetFontColor(n))
           + ",href=" + Enquote(nodeUrl)
-          + ",target=_parent"
+          + (settings.OutputFormat ==GraphvizOutputFormat.App? ",target=_parent":"")
           + (g.IsCentre(n) ? ",fillcolor=gold" : "")
           + ",penwidth=" + GetPenWidth(n)
           + "];");

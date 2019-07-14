@@ -178,6 +178,14 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
     }
 
+    public string HtmlAppFile
+    {
+      get
+      {
+        return "_sprockitviz.html";
+      }
+    }
+
     [ConfigurationProperty("htmlStyleSheet", DefaultValue = "_sprockitviz.css", IsRequired = false)]
     public string HtmlStyleSheet
     {

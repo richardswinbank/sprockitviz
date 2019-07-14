@@ -53,7 +53,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
     private void Run(SprockitVizSettings settings)
     {
       // copy CSS & JS files if required
-      if (settings.OutputFormat == GraphvizOutputFormat.Html)
+      if (settings.OutputFormat == GraphvizOutputFormat.Html || settings.OutputFormat == GraphvizOutputFormat.App)
       {
         string fileName = settings.OutputFolder + "\\" + settings.HtmlStyleSheet;
         string fileContents = File.ReadAllText(settings.HtmlStyleSheet);
@@ -62,6 +62,13 @@ namespace FireFive.PipelineVisualiser.SprockitViz
         fileName = settings.OutputFolder + "\\" + settings.JavaScriptFile;
         fileContents = File.ReadAllText(settings.JavaScriptFile);
         File.WriteAllText(fileName, fileContents);
+
+        if(settings.OutputFormat == GraphvizOutputFormat.App)
+        {
+          fileName = settings.OutputFolder + "\\" + settings.HtmlAppFile;
+          fileContents = File.ReadAllText(settings.HtmlAppFile);
+          File.WriteAllText(fileName, fileContents);
+        }
       }
 
       // get the graph
@@ -85,7 +92,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       foreach (Node n in graph.Nodes)
       {
         i++;
-        nodeNames.AppendLine(n.LongName);
+        nodeNames.AppendLine(", \"" + n.LongName + "\"");
 
         Console.WriteLine("Drawing subgraph " + i + " of " + graph.NodeCount + " (" + n.LongName + ")");
         try
@@ -120,7 +127,12 @@ namespace FireFive.PipelineVisualiser.SprockitViz
       }
 
       if (settings.OutputFormat == GraphvizOutputFormat.App)
-        File.WriteAllText(settings.OutputFolder + @"\_sprockitviz.nodes", nodeNames.ToString());
+        File.WriteAllText(settings.OutputFolder + @"\_sprockitNodes.js", 
+          @"function getNodes() { 
+   return [
+     " + nodeNames.ToString().Substring(2) + @"
+     ];
+   }");
     }
   }
 }

@@ -3,7 +3,7 @@ body {
    color: gray;
 }
 
-h1 {
+.title {
    font-weight: lighter;
    font-size: x-large;
 }

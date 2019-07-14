@@ -43,7 +43,8 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
 
       // wait no longer than this for Graphviz to execute
       int GraphvizTimeout { get; }
-   }
+    string HtmlAppFile { get; }
+  }
 
    public enum GraphvizOutputFormat
    {
