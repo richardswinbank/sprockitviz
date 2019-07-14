@@ -25,7 +25,7 @@ namespace FireFive.PipelineVisualiser.SprockitViz
     {
       get
       {
-        return "sprockitviz 0.2";
+        return "sprockitviz 0.3";
       }
     }
 
