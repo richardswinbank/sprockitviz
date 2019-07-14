@@ -68,6 +68,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="sprockitviz.html" />
     <Content Include="_sprockitviz.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
