@@ -1,137 +1,152 @@
+/*
+ * _sprockitviz.js
+ * Copyright (c) 2019 Richard Swinbank (richard@richardswinbank.net)
+ * http://richardswinbank.net/
+ *
+ * JavaScript functions to drive sprocktviz client-side app.
+ */
 
-	  
-      // from https://davidwalsh.name/query-string-javascript - Thanks, David!
-      function getUrlParameter(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        var results = regex.exec(location.search);
-        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-      };
-      
-      function setContent() {
-        // read node list 
-        var nodes = getNodes();
-        
-        // get selected node
-        var node = getUrlParameter("node");
-        if(node === null || node.length == 0)
-          node = nodes[0];
+// setContent() is called on load (in JavaScript, bottom of this file)
+function setContent() {
+  // read node list 
+  var nodes = getNodes();
 
-        // set title & diagram 
-        document.getElementById("title").innerHTML = node + "&nbsp;&nbsp;&nbsp;";
-        //document.getElementById("diagram").setAttribute('data', 'C:/tmp/Sprockit162/' + node + '.svg') ;
-        var obj = document.getElementById("diagram");
-        obj.outerHTML = obj.outerHTML.replace(/data="(.+?)"/, 'data="' + node + '.svg' + '"');
-        
-        // enable autocomplete
-        autocomplete(document.getElementById("myInput"), nodes);
-      };
-      
-      function autocomplete(inp, arr) {
-  /*the autocomplete function takes two arguments,
-  the text field element and an array of possible autocompleted values:*/
-  var currentFocus;
-  /*execute a function when someone writes in the text field:*/
-  inp.addEventListener("input", function(e) {
-      var a, b, i, val = this.value;
-      /*close any already open lists of autocompleted values*/
-      closeAllLists();
-      if (!val) { return false;}
-      currentFocus = -1;
-      /*create a DIV element that will contain the items (values):*/
-      a = document.createElement("DIV");
-      a.setAttribute("id", this.id + "autocomplete-list");
-      a.setAttribute("class", "autocomplete-items");
-      /*append the DIV element as a child of the autocomplete container:*/
-      this.parentNode.appendChild(a);
-      /*for each item in the array...*/
-      for (i = 0; i < arr.length; i++) {
-        /*check if the item starts with the same letters as the text field value:*/
-        if (arr[i].toUpperCase().includes(val.toUpperCase())) {
-//        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-          /*create a DIV element for each matching element:*/
-          b = document.createElement("DIV");
-          /*make the matching letters bold:*/
+  // get selected node
+  var node = getUrlParameter("node");
+  if (node === null || node.length == 0)
+    node = nodes[0]; // default to first in list if none selected
+
+  // set title & diagram 
+  document.getElementById("title").innerHTML = node + "&nbsp;&nbsp;&nbsp;";
+  var obj = document.getElementById("diagram");
+  obj.outerHTML = obj.outerHTML.replace(/data="(.+?)"/, 'data="' + node + '.svg' + '"');
+
+  // set up autocomplete
+  setupAutoComplete(document.getElementById("myInput"), nodes);
+};
+
+// getUrlParameter() parses a URL parameter out of a GET-style URL, client-side.
+// From https://davidwalsh.name/query-string-javascript.
+function getUrlParameter(name) {
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+  var results = regex.exec(location.search);
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
+
+// setupAutoComplete() sets up auto-complete style searching for Sprockit nodes.
+// Tidied up from https://www.w3schools.com/howto/howto_js_autocomplete.asp.
+function setupAutoComplete(inp, arr) { // inp = input text field element, arr = array of values to search
+
+  var selectedItemIndex;
+
+  /*
+   * add input listener to text field; revises auto-complete dropdown in response to typing
+   */ 
+  inp.addEventListener(
+    "input"
+  , function (e) { // function to be executed whenever text field input occurs
+
+      closeAllLists();  // close any open auto-complete list
+      var val = this.value;
+      if (!val) { return false; }
+      selectedItemIndex = -1;
+
+      // create div element to comtain auto-complete list items
+      var list = document.createElement("div");
+      list.setAttribute("id", this.id + "autocomplete-list");
+      list.setAttribute("class", "autocomplete-items");    
+      this.parentNode.appendChild(list);  // append the div element as a child of the autocomplete container
+
+      // add items to the auto-complete list by checking array elements and adding matches
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].toUpperCase().includes(val.toUpperCase())) {  // add a list item if the array element contains the text in the input box
+
+          // create a div element containing the matched text 
+          var listItem = document.createElement("div");
           var off = arr[i].toUpperCase().indexOf(val.toUpperCase());
-          b.innerHTML = arr[i].substr(0, off);
-          b.innerHTML += "<strong>" + arr[i].substr(off, val.length) + "</strong>";
-          b.innerHTML += arr[i].substr(off + val.length);
+          listItem.innerHTML = arr[i].substr(0, off);
+          listItem.innerHTML += "<strong>" + arr[i].substr(off, val.length) + "</strong>";  // display matched text in bold
+          listItem.innerHTML += arr[i].substr(off + val.length);
+          listItem.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";  // input field containing the value of the array element
 
-          //b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-          //b.innerHTML += arr[i].substr(val.length);
-          
-          /*insert a input field that will hold the current array item's value:*/
-          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-          /*execute a function when someone clicks on the item value (DIV element):*/
-              b.addEventListener("click", function(e) {
-              /*insert the value for the autocomplete text field:*/
-              inp.value = this.getElementsByTagName("input")[0].value;
-              /*close the list of autocompleted values,
-              (or any other open lists of autocompleted values:*/
-              closeAllLists();
-              var form = document.getElementById("sprockitNodeSelector");
-              form.submit();
-          });
-          a.appendChild(b);
+          // add a click listener to the div element
+          listItem.addEventListener(
+            "click"
+          , function (e) {  // function to be executed when the div is clicked
+              inp.value = this.getElementsByTagName("input")[0].value;  // set input field value
+              closeAllLists();  // close any open auto-complete list
+              document.getElementById("sprockitNodeSelector").submit();  // submit the form
+            }
+          );
+
+          // add the list item div to the list
+          list.appendChild(listItem);
         }
       }
-  });
-  /*execute a function presses a key on the keyboard:*/
-  inp.addEventListener("keydown", function(e) {
+    }
+  );
+
+  /*
+   * add keydown listener to text field; changes selected list item with up/down cursor keys, submits form with ENTER
+   */
+  inp.addEventListener(
+    "keydown"
+  , function (e) {  // function to be executed whenever a key is pressed in the input field
+      // get list items
       var x = document.getElementById(this.id + "autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
-      if (e.keyCode == 40) {
-        /*If the arrow DOWN key is pressed,
-        increase the currentFocus variable:*/
-        currentFocus++;
-        /*and and make the current item more visible:*/
-        addActive(x);
-      } else if (e.keyCode == 38) { //up
-        /*If the arrow UP key is pressed,
-        decrease the currentFocus variable:*/
-        currentFocus--;
-        /*and and make the current item more visible:*/
-        addActive(x);
-      } else if (e.keyCode == 13) {
-        /*If the ENTER key is pressed, prevent the form from being submitted,*/
-        e.preventDefault();
-        if (currentFocus > -1) {
-          /*and simulate a click on the "active" item:*/
-          if (x) x[currentFocus].click();
-        }
-      }
-  });
-  function addActive(x) {
-    /*a function to classify an item as "active":*/
-    if (!x) return false;
-    /*start by removing the "active" class on all items:*/
-    removeActive(x);
-    if (currentFocus >= x.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = (x.length - 1);
-    /*add class "autocomplete-active":*/
-    x[currentFocus].classList.add("autocomplete-active");
-  }
-  function removeActive(x) {
-    /*a function to remove the "active" class from all autocomplete items:*/
-    for (var i = 0; i < x.length; i++) {
-      x[i].classList.remove("autocomplete-active");
-    }
-  }
-  function closeAllLists(elmnt) {
-    /*close all autocomplete lists in the document,
-    except the one passed as an argument:*/
-    var x = document.getElementsByClassName("autocomplete-items");
-    for (var i = 0; i < x.length; i++) {
-      if (elmnt != x[i] && elmnt != inp) {
-      x[i].parentNode.removeChild(x[i]);
-    }
-  }
-}
-/*execute a function when someone clicks in the document:*/
-document.addEventListener("click", function (e) {
-    closeAllLists(e.target);
-});
-}
-      
-      window.onload = setContent;      
 
+      if (e.keyCode == 40) {  // DOWN cursor key pressed
+        // highlight next element down in list
+        selectedItemIndex++;  
+        highlightListItem(x);
+      } else if (e.keyCode == 38) {  // UP cursor key pressed
+        // highlight next element up in list
+        selectedItemIndex--;
+        highlightListItem(x);
+      } else if (e.keyCode == 13) {  // ENTER key pressed
+        e.preventDefault();  // don't submit the form directly...
+        if (selectedItemIndex > -1 && x)
+          x[selectedItemIndex].click();  // ...instead, simulate click on selected element (causing its own click listener to submit the form)
+      }
+    }
+  );
+
+  // helper function to highlight a list item (by adding "autocomplete-active" to its class list for highlighting by CSS)
+  function highlightListItem(x) {
+    if (!x) return false;
+
+    // remove the "active" class from all items
+    for (let i = 0; i < x.length; i++)
+      x[i].classList.remove("autocomplete-active");
+
+    // add class "autocomplete-active" to element at selectedItemIndex
+    if (selectedItemIndex >= x.length) selectedItemIndex = 0;
+    if (selectedItemIndex < 0) selectedItemIndex = (x.length - 1);
+    x[selectedItemIndex].classList.add("autocomplete-active");
+  }
+
+  // helper function to close all autocomplete lists in the document, except the one passed as an argument
+  function closeAllLists(keepOpen) {
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (let i = 0; i < x.length; i++) {
+      if (keepOpen != x[i] && keepOpen != inp) {
+        x[i].parentNode.removeChild(x[i]);
+      }
+    }
+  }
+
+  /*
+   * add click listener to document; dismisses auto-complete list when user clicks elsewhere on page
+   */ 
+  document.addEventListener(
+    "click"
+  , function (e) {
+      closeAllLists(e.target);
+    }
+  );
+}
+
+// call setContent() when the window has loaded
+window.onload = setContent;
