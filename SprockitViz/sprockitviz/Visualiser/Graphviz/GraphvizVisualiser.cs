@@ -171,9 +171,9 @@ namespace FireFive.PipelineVisualiser.Visualiser.Graphviz
             File.Delete(inputFile);
       }
 
-      private void RaiseGraphvizRenderingException(string outputFile, string inputFile, bool crashed)
+      private void RaiseGraphvizRenderingException(string outputFile, string inputFile, bool timeout)
       {
-         throw new VisualiserRenderingException("Graphviz " + (crashed ? "crashed" : "error")
+         throw new VisualiserRenderingException("Graphviz " + (timeout ? "timed out" : "error")
            + " rendering " + outputFile
            + " from " + inputFile
            + Environment.NewLine + stdErr.ToString());
