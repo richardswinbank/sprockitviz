@@ -6,6 +6,10 @@
  * JavaScript functions to drive sprocktviz client-side app.
  */
 
+// fire reload event even if we've arrived on the page via the browser's back button
+if(performance.navigation.type == 2)
+   location.reload(true);
+
 // setContent() is called on load (in JavaScript, bottom of this file)
 function setContent() {
   // read node list 
