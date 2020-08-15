@@ -3,4 +3,4 @@
 
 **[sprockitviz](http://richardswinbank.net/sprockitviz)** uses Sprockit's dependency information to generate browseable, click-to-explore visualisations of Sprockit-managed ETL pipelines. e.g. (just a screenshot, you can't explore this one!):
 
-![Screenshot](https://github.com/richardswinbank/sprockitviz/blob/master/sprockitviz.png)
+![Screenshot](https://github.com/richardswinbank/sprockitviz/blob/main/sprockitviz.png)
